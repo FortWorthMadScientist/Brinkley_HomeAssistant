@@ -1,1 +1,13 @@
-[content omitted]
+# Brinkley ESPHome CAN controller
+#
+# IMPORTANT: This public repository intentionally contains no Wi-Fi or API secrets.
+# Copy secrets.example.yaml to secrets.yaml in ESPHome and fill in your local values.
+#
+# Full tested controller source is generated from the Berta integration and should
+# be pasted here from the released project file. Do not hard-code credentials.
+#
+# Upstream OneControl core:
+# https://github.com/andrewcfitz/esphome-onecontrol
+#
+# See README.md and docs/CAN_AND_CALIBRATION.md for CAN wiring, node safety,
+# awning calibration, position tracking, and factory-panel synchronization.
