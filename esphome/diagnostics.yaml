@@ -1,0 +1,246 @@
+# BERTA / Brinkley ESP32 diagnostics
+#
+# Drop-in ESPHome package for the Brinkley OneControl controller.
+# This file intentionally does not alter awning control timing, CAN command
+# behavior, or device mappings. It only observes and publishes diagnostics.
+#
+# Add to the main YAML under packages:
+#
+#   diagnostics: !include diagnostics.yaml
+#
+# The package assumes the OneControl CAN component ID is `can_bus`.
+
+# ESPHome's built-in debug component gives us reset reason, heap health,
+# fragmentation, and main-loop timing without custom ESP-IDF glue code.
+debug:
+  update_interval: 10s
+
+globals:
+  # Persistent boot counter. One flash write occurs per boot.
+  - id: diag_boot_count
+    type: uint32_t
+    restore_value: yes
+    initial_value: '0'
+
+  # CAN receive telemetry. These are RAM-only and reset naturally at boot.
+  - id: diag_can_rx_total
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: diag_can_rx_standard
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: diag_can_rx_extended
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: diag_can_last_rx_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: diag_can_rate_last_count
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: diag_can_rate_last_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+esphome:
+  on_boot:
+    priority: -100
+    then:
+      - lambda: |-
+          id(diag_boot_count)++;
+          id(diag_boot_count_sensor).publish_state(id(diag_boot_count));
+          ESP_LOGW(
+            "berta.diagnostics",
+            "Boot #%lu - diagnostic recorder active",
+            (unsigned long) id(diag_boot_count)
+          );
+
+binary_sensor:
+  # This mirrors native-API connectivity. In HA, a transition to unavailable
+  # while uptime later remains continuous points toward networking/API rather
+  # than a full ESP reboot.
+  - platform: status
+    name: "ESP32 API Connected"
+    id: diag_api_connected
+    entity_category: diagnostic
+
+sensor:
+  - platform: uptime
+    name: "ESP32 Uptime"
+    id: diag_uptime
+    type: seconds
+    update_interval: 10s
+    entity_category: diagnostic
+
+  - platform: wifi_signal
+    name: "ESP32 WiFi RSSI"
+    id: diag_wifi_rssi
+    update_interval: 10s
+    entity_category: diagnostic
+
+  - platform: template
+    name: "ESP32 Boot Count"
+    id: diag_boot_count_sensor
+    accuracy_decimals: 0
+    update_interval: never
+    entity_category: diagnostic
+
+  - platform: debug
+    free:
+      name: "ESP32 Heap Free"
+      id: diag_heap_free
+      entity_category: diagnostic
+    min_free:
+      name: "ESP32 Heap Minimum Free"
+      id: diag_heap_min_free
+      entity_category: diagnostic
+    block:
+      name: "ESP32 Heap Largest Block"
+      id: diag_heap_largest_block
+      entity_category: diagnostic
+    fragmentation:
+      name: "ESP32 Heap Fragmentation"
+      id: diag_heap_fragmentation
+      entity_category: diagnostic
+    loop_time:
+      name: "ESP32 Max Loop Time"
+      id: diag_loop_time
+      entity_category: diagnostic
+    cpu_frequency:
+      name: "ESP32 CPU Frequency"
+      id: diag_cpu_frequency
+      entity_category: diagnostic
+
+  - platform: template
+    name: "CAN RX Frame Count"
+    id: diag_can_rx_total_sensor
+    accuracy_decimals: 0
+    update_interval: 10s
+    entity_category: diagnostic
+    lambda: |-
+      return (float) id(diag_can_rx_total);
+
+  - platform: template
+    name: "CAN RX Standard Frame Count"
+    id: diag_can_rx_standard_sensor
+    accuracy_decimals: 0
+    update_interval: 10s
+    entity_category: diagnostic
+    lambda: |-
+      return (float) id(diag_can_rx_standard);
+
+  - platform: template
+    name: "CAN RX Extended Frame Count"
+    id: diag_can_rx_extended_sensor
+    accuracy_decimals: 0
+    update_interval: 10s
+    entity_category: diagnostic
+    lambda: |-
+      return (float) id(diag_can_rx_extended);
+
+  - platform: template
+    name: "CAN RX Rate"
+    id: diag_can_rx_rate
+    unit_of_measurement: "frames/s"
+    accuracy_decimals: 1
+    update_interval: 10s
+    entity_category: diagnostic
+    lambda: |-
+      const uint32_t now = millis();
+      const uint32_t count = id(diag_can_rx_total);
+
+      if (id(diag_can_rate_last_ms) == 0) {
+        id(diag_can_rate_last_ms) = now;
+        id(diag_can_rate_last_count) = count;
+        return 0.0f;
+      }
+
+      const uint32_t elapsed_ms = now - id(diag_can_rate_last_ms);
+      const uint32_t delta = count - id(diag_can_rate_last_count);
+
+      id(diag_can_rate_last_ms) = now;
+      id(diag_can_rate_last_count) = count;
+
+      if (elapsed_ms == 0) return 0.0f;
+      return ((float) delta * 1000.0f) / (float) elapsed_ms;
+
+  - platform: template
+    name: "CAN Seconds Since Last RX"
+    id: diag_can_seconds_since_rx
+    unit_of_measurement: "s"
+    accuracy_decimals: 1
+    update_interval: 5s
+    entity_category: diagnostic
+    lambda: |-
+      if (id(diag_can_last_rx_ms) == 0) return NAN;
+      return (millis() - id(diag_can_last_rx_ms)) / 1000.0f;
+
+text_sensor:
+  - platform: debug
+    reset_reason:
+      name: "ESP32 Last Reset Reason"
+      id: diag_reset_reason
+      entity_category: diagnostic
+    device:
+      name: "ESP32 Device Info"
+      id: diag_device_info
+      entity_category: diagnostic
+
+  - platform: wifi_info
+    ip_address:
+      name: "ESP32 IP Address"
+      id: diag_ip_address
+      entity_category: diagnostic
+    ssid:
+      name: "ESP32 Connected SSID"
+      id: diag_wifi_ssid
+      entity_category: diagnostic
+    bssid:
+      name: "ESP32 Connected BSSID"
+      id: diag_wifi_bssid
+      entity_category: diagnostic
+    mac_address:
+      name: "ESP32 WiFi MAC"
+      id: diag_wifi_mac
+      entity_category: diagnostic
+
+button:
+  - platform: restart
+    name: "ESP32 Restart"
+    id: diag_restart
+    entity_category: diagnostic
+
+# Observe every received CAN frame. This does not transmit anything and does
+# not change any existing OneControl handlers. The two listeners are separate
+# because ESPHome distinguishes standard and extended CAN IDs.
+canbus:
+  - id: !extend can_bus
+    on_frame:
+      - can_id: 0x000
+        can_id_mask: 0x000
+        use_extended_id: false
+        then:
+          - lambda: |-
+              id(diag_can_rx_total)++;
+              id(diag_can_rx_standard)++;
+              id(diag_can_last_rx_ms) = millis();
+
+      - can_id: 0x00000000
+        can_id_mask: 0x00000000
+        use_extended_id: true
+        then:
+          - lambda: |-
+              id(diag_can_rx_total)++;
+              id(diag_can_rx_extended)++;
+              id(diag_can_last_rx_ms) = millis();
