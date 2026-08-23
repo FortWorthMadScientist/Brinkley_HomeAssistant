@@ -2,7 +2,7 @@
 
 Home Assistant / ESPHome integration for a Brinkley RV using an ESP32 connected directly to the coach's Lippert / LCI OneControl IDS-CAN network.
 
-This repository documents the hardware, CAN-bus behavior, ESPHome configuration, discovered devices, calibration, and safety work used on the development coach (Berta).
+This repository documents the hardware, CAN-bus behavior, ESPHome configuration, discovered devices, calibration, safety work, and controller diagnostics used on the development coach (Berta).
 
 > **Important:** OneControl node addresses are coach-specific. Do **not** blindly copy the node addresses in this repository to another RV. Discover and verify the devices on your own coach before enabling control.
 
@@ -20,7 +20,8 @@ The ESP32:
 - controls the two tested awning motors using a remote-control session and repeated motor keepalive frames;
 - watches motor-load telemetry during awning retraction;
 - keeps an estimated awning position so a partially extended awning does not receive a full-extension run time again;
-- watches factory-panel awning commands so the estimated position can remain synchronized when someone operates an awning from the original panel.
+- watches factory-panel awning commands so the estimated position can remain synchronized when someone operates an awning from the original panel;
+- can expose persistent ESP32/network/CAN diagnostics to help diagnose intermittent controller dropouts.
 
 The ESP32 is therefore a **participant on the CAN bus**, not merely a passive CAN sniffer. Treat configuration changes accordingly.
 
@@ -81,6 +82,28 @@ The main configuration is:
 It uses Andrew Fitzpatrick's `esphome-onecontrol` package pinned to `v1.2` for the OneControl core, lights, relays, tanks, CAN configuration, and session behavior.
 
 Before compiling, create your ESPHome secrets and review every node address.
+
+## Controller diagnostics
+
+The optional diagnostic package is:
+
+`esphome/diagnostics.yaml`
+
+Add it to the main YAML under the existing `packages:` block:
+
+```yaml
+  diagnostics: !include diagnostics.yaml
+```
+
+It adds ESP uptime, persistent boot count, reset reason, Wi-Fi/API health, heap and loop timing, CAN frame counters, CAN receive rate, and time since the last received CAN frame. It is observational only and does not transmit CAN traffic or alter awning logic.
+
+The purpose is to distinguish three otherwise similar-looking failures:
+
+1. **ESP32 reboot/brownout/watchdog** — uptime resets and boot count increments.
+2. **Wi-Fi/API/Home Assistant connectivity loss** — entities disappear without a corresponding reboot.
+3. **CAN-side failure** — ESP/API remain alive while CAN receive counters stop.
+
+See `docs/DIAGNOSTICS.md` for the entity list and failure interpretation guide.
 
 ## User calibration — easy place to tune awnings
 
@@ -143,11 +166,12 @@ ESPHome exposes the mapped lights, switches, tanks and awning controls directly 
 7. Configure Wi-Fi credentials through ESPHome secrets rather than committing passwords to GitHub.
 8. Change the device addresses to match your coach.
 9. Review the awning calibration block before enabling motor control.
-10. Compile and flash the ESP32.
-11. Verify receive traffic in ESPHome logs before commanding anything.
-12. Test low-risk devices such as a known light first.
-13. Test awnings physically while standing where you can see them and with Stop immediately available.
-14. Calibrate each awning's extension time and retract stall threshold individually.
+10. Optionally add `diagnostics: !include diagnostics.yaml` under `packages:`.
+11. Compile and flash the ESP32.
+12. Verify receive traffic in ESPHome logs before commanding anything.
+13. Test low-risk devices such as a known light first.
+14. Test awnings physically while standing where you can see them and with Stop immediately available.
+15. Calibrate each awning's extension time and retract stall threshold individually.
 
 ## Safety notes
 
