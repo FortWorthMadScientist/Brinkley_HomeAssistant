@@ -6,6 +6,14 @@ This repository documents the hardware, CAN-bus behavior, ESPHome configuration,
 
 > **Important:** OneControl node addresses are coach-specific. Do **not** blindly copy the node addresses in this repository to another RV. Discover and verify the devices on your own coach before enabling control.
 
+## 🚀 New ESP32 installation? Start here
+
+**[Complete ESP32 + ESPHome Installation and Verification Guide](docs/ESP32_ESPHOME_INSTALLATION.md)**
+
+That guide walks through the entire process from a bare ESP32 to a commissioned Home Assistant / OneControl controller: hardware requirements, ESPHome setup, USB flashing, copying the YAML, Wi-Fi secrets, CAN wiring and termination, Home Assistant integration, logs, CAN verification, safe first tests, diagnostics, OTA updates, troubleshooting, and awning calibration.
+
+If you are building this project for the first time, **read that guide before connecting the controller to the coach CAN bus.**
+
 ## What the ESP32 does
 
 The ESP32 acts as a bridge between Home Assistant and the RV's existing OneControl CAN network. It is not replacing the Lippert controller or factory panel.
@@ -156,6 +164,10 @@ ESPHome exposes the mapped lights, switches, tanks and awning controls directly 
 - estimated remaining extension time
 
 ## First installation procedure
+
+For the full illustrated-by-example walkthrough, use **[docs/ESP32_ESPHOME_INSTALLATION.md](docs/ESP32_ESPHOME_INSTALLATION.md)**.
+
+The short commissioning sequence is:
 
 1. Install ESPHome in Home Assistant or use the ESPHome CLI.
 2. Connect the ESP32 to the CAN transceiver using the correct TX/RX pins for your hardware.
