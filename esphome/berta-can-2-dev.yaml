@@ -1,0 +1,263 @@
+###############################################################################
+# BERTA CAN 2.0 — DEVELOPMENT / PHASE 0
+# Waveshare ESP32-S3-RS485-CAN
+#
+# PURPOSE
+#   Passive OneControl CAN bus bring-up only.
+#   This firmware MUST NOT transmit onto the RV CAN bus.
+#
+# HARDWARE
+#   Board CAN TX: GPIO15
+#   Board CAN RX: GPIO16
+#   OneControl bitrate: 250 kbit/s
+#
+# SAFETY
+#   ESPHome TWAI is placed in LISTENONLY mode and TX queue is disabled.
+#   Leave the board's CAN 120R termination jumper DISABLED when tapping into
+#   the existing OneControl bus unless testing proves this board is physically
+#   replacing one of the bus endpoint terminators.
+###############################################################################
+
+substitutions:
+  device_name: berta-can-2-dev
+  friendly_name: "Berta CAN 2 Dev"
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+  comment: "Berta CAN 2.0 Phase 0 passive OneControl listener"
+  platformio_options:
+    board_build.flash_mode: dio
+
+esp32:
+  board: esp32-s3-devkitc-1
+  variant: esp32s3
+  flash_size: 16MB
+  framework:
+    type: esp-idf
+
+logger:
+  # Do not consume a hardware UART for logging. Logs remain available through
+  # the ESPHome API after Wi-Fi comes up.
+  baud_rate: 0
+  level: INFO
+
+api:
+
+ota:
+  - platform: esphome
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  ap:
+    ssid: "Berta CAN 2 Fallback"
+    password: !secret fallback_ap_password
+
+captive_portal:
+
+# -----------------------------------------------------------------------------
+# Phase 0 state
+# -----------------------------------------------------------------------------
+globals:
+  - id: can_rx_total
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: can_rx_standard
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: can_rx_extended
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: can_last_rx_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: can_rate_last_count
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+  - id: can_rate_last_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+
+# -----------------------------------------------------------------------------
+# CAN — PASSIVE ONLY
+# -----------------------------------------------------------------------------
+canbus:
+  - platform: esp32_can
+    id: can_bus
+    tx_pin: GPIO15
+    rx_pin: GPIO16
+    # Required by ESPHome even though this firmware never transmits.
+    can_id: 0x001
+    bit_rate: 250kbps
+    mode: LISTENONLY
+    rx_queue_len: 64
+    tx_queue_len: 0
+
+    # Wildcard listeners for both 11-bit and 29-bit frames.
+    on_frame:
+      - can_id: 0x000
+        can_id_mask: 0x000
+        use_extended_id: false
+        then:
+          - lambda: |-
+              id(can_rx_total)++;
+              id(can_rx_standard)++;
+              id(can_last_rx_ms) = millis();
+
+      - can_id: 0x00000000
+        can_id_mask: 0x00000000
+        use_extended_id: true
+        then:
+          - lambda: |-
+              id(can_rx_total)++;
+              id(can_rx_extended)++;
+              id(can_last_rx_ms) = millis();
+
+# -----------------------------------------------------------------------------
+# Home Assistant diagnostics
+# -----------------------------------------------------------------------------
+binary_sensor:
+  - platform: status
+    name: "API Connected"
+    entity_category: diagnostic
+
+  - platform: template
+    name: "CAN Traffic Active"
+    id: can_traffic_active
+    entity_category: diagnostic
+
+sensor:
+  - platform: uptime
+    name: "Uptime"
+    type: seconds
+    update_interval: 10s
+    entity_category: diagnostic
+
+  - platform: wifi_signal
+    name: "WiFi RSSI"
+    update_interval: 10s
+    entity_category: diagnostic
+
+  - platform: template
+    name: "CAN RX Frames"
+    id: can_rx_frames_sensor
+    accuracy_decimals: 0
+    update_interval: 5s
+    entity_category: diagnostic
+    lambda: |-
+      return (float) id(can_rx_total);
+
+  - platform: template
+    name: "CAN RX Standard Frames"
+    accuracy_decimals: 0
+    update_interval: 5s
+    entity_category: diagnostic
+    lambda: |-
+      return (float) id(can_rx_standard);
+
+  - platform: template
+    name: "CAN RX Extended Frames"
+    accuracy_decimals: 0
+    update_interval: 5s
+    entity_category: diagnostic
+    lambda: |-
+      return (float) id(can_rx_extended);
+
+  - platform: template
+    name: "CAN RX Rate"
+    id: can_rx_rate_sensor
+    unit_of_measurement: "frames/s"
+    accuracy_decimals: 1
+    update_interval: 5s
+    entity_category: diagnostic
+    lambda: |-
+      const uint32_t now = millis();
+      const uint32_t count = id(can_rx_total);
+
+      if (id(can_rate_last_ms) == 0) {
+        id(can_rate_last_ms) = now;
+        id(can_rate_last_count) = count;
+        return 0.0f;
+      }
+
+      const uint32_t elapsed_ms = now - id(can_rate_last_ms);
+      const uint32_t delta = count - id(can_rate_last_count);
+
+      id(can_rate_last_ms) = now;
+      id(can_rate_last_count) = count;
+
+      if (elapsed_ms == 0) return 0.0f;
+      return ((float) delta * 1000.0f) / (float) elapsed_ms;
+
+  - platform: template
+    name: "CAN Seconds Since Last RX"
+    id: can_seconds_since_last_rx
+    unit_of_measurement: "s"
+    accuracy_decimals: 1
+    update_interval: 2s
+    entity_category: diagnostic
+    lambda: |-
+      if (id(can_last_rx_ms) == 0) return NAN;
+      return (millis() - id(can_last_rx_ms)) / 1000.0f;
+
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: "IP Address"
+      entity_category: diagnostic
+    mac_address:
+      name: "WiFi MAC"
+      entity_category: diagnostic
+
+  - platform: template
+    name: "CAN Operating Mode"
+    entity_category: diagnostic
+    update_interval: never
+    lambda: |-
+      return {"LISTEN ONLY — TRANSMIT DISABLED"};
+
+button:
+  - platform: restart
+    name: "Restart"
+    entity_category: diagnostic
+
+# Publish a simple bus-active state and a compact log heartbeat. No raw-frame
+# logging yet: OneControl is busy enough that dumping every frame can swamp the
+# logger and hide the hardware signal we are trying to prove in Phase 0.
+interval:
+  - interval: 2s
+    then:
+      - lambda: |-
+          const bool active =
+            id(can_last_rx_ms) != 0 &&
+            (millis() - id(can_last_rx_ms)) < 2000;
+          id(can_traffic_active).publish_state(active);
+
+  - interval: 10s
+    then:
+      - lambda: |-
+          float age_s = -1.0f;
+          if (id(can_last_rx_ms) != 0) {
+            age_s = (millis() - id(can_last_rx_ms)) / 1000.0f;
+          }
+          ESP_LOGI(
+            "berta.can2",
+            "PASSIVE CAN: total=%lu std=%lu ext=%lu last_rx=%.1fs",
+            (unsigned long) id(can_rx_total),
+            (unsigned long) id(can_rx_standard),
+            (unsigned long) id(can_rx_extended),
+            age_s
+          );
