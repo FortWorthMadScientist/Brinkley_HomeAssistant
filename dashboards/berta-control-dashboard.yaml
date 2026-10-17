@@ -637,7 +637,7 @@ views:
                 - type: markdown
                   content: |
                     ## 💧 WATER SAFETY
-                    Leak sensors should read **DRY**. Tap the valve card and confirm before changing the shutoff.
+                    Leak sensors should read **DRY**. Valve card shows its Zigbee switch state; flow and device status are shown below.
                   card_mod:
                     style: |
                       ha-card {
@@ -669,7 +669,7 @@ views:
                         [[[
                           if (entity.state === 'on') return 'WET — LEAK';
                           if (entity.state === 'off') return 'DRY';
-                          return (entity.state || 'UNKNOWN').toUpperCase();
+                          return (entity.state === 'unknown' ? 'NO STATE YET' : (entity.state || 'UNAVAILABLE')).toUpperCase();
                         ]]]
                       tap_action:
                         action: more-info
@@ -696,11 +696,11 @@ views:
                           - font-weight: 900
                     - type: custom:button-card
                       entity: binary_sensor.0x00158d008bbac50f_water_leak
-                      name: Leak Sensor C50F
+                      name: Kitchen
                       icon: mdi:water-alert
                       show_state: true
                       state_display: |
-                        [[[ if (entity.state === 'on') return 'WET — LEAK'; if (entity.state === 'off') return 'DRY'; return (entity.state || 'UNKNOWN').toUpperCase(); ]]]
+                        [[[ if (entity.state === 'on') return 'WET — LEAK'; if (entity.state === 'off') return 'DRY'; return (entity.state === 'unknown' ? 'NO STATE YET' : (entity.state || 'UNAVAILABLE')).toUpperCase(); ]]]
                       tap_action:
                         action: more-info
                       styles:
@@ -726,11 +726,11 @@ views:
                           - font-weight: 900
                     - type: custom:button-card
                       entity: binary_sensor.0x00158d008c865795_water_leak
-                      name: Leak Sensor 5795
+                      name: Shower
                       icon: mdi:water-alert
                       show_state: true
                       state_display: |
-                        [[[ if (entity.state === 'on') return 'WET — LEAK'; if (entity.state === 'off') return 'DRY'; return (entity.state || 'UNKNOWN').toUpperCase(); ]]]
+                        [[[ if (entity.state === 'on') return 'WET — LEAK'; if (entity.state === 'off') return 'DRY'; return (entity.state === 'unknown' ? 'NO STATE YET' : (entity.state || 'UNAVAILABLE')).toUpperCase(); ]]]
                       tap_action:
                         action: more-info
                       styles:
@@ -756,11 +756,11 @@ views:
                           - font-weight: 900
                 - type: custom:button-card
                   entity: switch.water_valve
-                  name: Water Shutoff Valve
+                  name: Water Valve Switch
                   icon: mdi:valve
                   show_state: true
                   state_display: |
-                    [[[ if (entity.state === 'on') return 'OPEN'; if (entity.state === 'off') return 'CLOSED'; return (entity.state || 'UNKNOWN').toUpperCase(); ]]]
+                    [[[ if (entity.state === 'on') return 'SWITCH ON'; if (entity.state === 'off') return 'SWITCH OFF'; return (entity.state || 'UNKNOWN').toUpperCase(); ]]]
                   tap_action:
                     action: toggle
                     confirmation:
@@ -787,6 +787,48 @@ views:
                       - color: '#f5f7f9'
                       - font-size: 12px
                       - font-weight: 900
+                - type: horizontal-stack
+                  cards:
+                    - type: custom:button-card
+                      entity: sensor.water_valve_flow
+                      name: Water Flow
+                      icon: mdi:water
+                      show_state: true
+                      state_display: |
+                        [[[ const v = Number(entity.state); return Number.isFinite(v) ? `${v.toFixed(2)} ${entity.attributes?.unit_of_measurement || 'm³/h'}` : (entity.state || 'UNAVAILABLE').toUpperCase(); ]]]
+                      tap_action:
+                        action: more-info
+                      styles:
+                        card:
+                          - height: 58px
+                          - border-radius: 14px
+                          - background: rgba(8,19,27,.96)
+                          - border: 1px solid rgba(56,201,255,.42)
+                        icon: [{ color: '#38c9ff', width: 20px }]
+                        name: [{ color: '#9fb0ba', font-size: 10px }]
+                        state: [{ color: '#f5f7f9', font-size: 12px, font-weight: 800 }]
+                    - type: custom:button-card
+                      entity: sensor.water_valve_current_device_status
+                      name: Valve Device Status
+                      icon: mdi:shield-water
+                      show_state: true
+                      state_display: |
+                        [[[ const labels = {normal_state:'NORMAL', water_shortage:'WATER SHORTAGE', water_leakage:'WATER LEAKAGE', 'water_shortage & water_leakage':'SHORTAGE + LEAKAGE'}; return labels[entity.state] || (entity.state || 'UNAVAILABLE').toUpperCase(); ]]]
+                      tap_action:
+                        action: more-info
+                      styles:
+                        card:
+                          - height: 58px
+                          - border-radius: 14px
+                          - background: rgba(8,19,27,.96)
+                          - border: |
+                              [[[ const s = entity.state || ''; return s.includes('leakage') ? '1px solid rgba(255,70,55,.95)' : s.includes('shortage') ? '1px solid rgba(255,190,65,.95)' : '1px solid rgba(75,220,120,.65)'; ]]]
+                        icon:
+                          - color: |
+                              [[[ const s = entity.state || ''; return s.includes('leakage') ? '#ff4637' : s.includes('shortage') ? '#ffc14d' : '#4bdc78'; ]]]
+                          - width: 20px
+                        name: [{ color: '#9fb0ba', font-size: 10px }]
+                        state: [{ color: '#f5f7f9', font-size: 11px, font-weight: 800 }]
           right:
             do_not_eval: true
             card:
@@ -1918,7 +1960,7 @@ views:
                       icon: mdi:water-alert
                       show_state: true
                       state_display: |
-                        [[[ if (entity.state === 'on') return 'WET — LEAK'; if (entity.state === 'off') return 'DRY'; return (entity.state || 'UNKNOWN').toUpperCase(); ]]]
+                        [[[ if (entity.state === 'on') return 'WET — LEAK'; if (entity.state === 'off') return 'DRY'; return (entity.state === 'unknown' ? 'NO STATE YET' : (entity.state || 'UNAVAILABLE')).toUpperCase(); ]]]
                       tap_action: { action: more-info }
                       styles:
                         card:
@@ -1939,11 +1981,11 @@ views:
                           - font-weight: 900
                     - type: custom:button-card
                       entity: binary_sensor.0x00158d008bbac50f_water_leak
-                      name: Leak Sensor C50F
+                      name: Kitchen
                       icon: mdi:water-alert
                       show_state: true
                       state_display: |
-                        [[[ if (entity.state === 'on') return 'WET — LEAK'; if (entity.state === 'off') return 'DRY'; return (entity.state || 'UNKNOWN').toUpperCase(); ]]]
+                        [[[ if (entity.state === 'on') return 'WET — LEAK'; if (entity.state === 'off') return 'DRY'; return (entity.state === 'unknown' ? 'NO STATE YET' : (entity.state || 'UNAVAILABLE')).toUpperCase(); ]]]
                       tap_action: { action: more-info }
                       styles:
                         card:
@@ -1964,11 +2006,11 @@ views:
                           - font-weight: 900
                     - type: custom:button-card
                       entity: binary_sensor.0x00158d008c865795_water_leak
-                      name: Leak Sensor 5795
+                      name: Shower
                       icon: mdi:water-alert
                       show_state: true
                       state_display: |
-                        [[[ if (entity.state === 'on') return 'WET — LEAK'; if (entity.state === 'off') return 'DRY'; return (entity.state || 'UNKNOWN').toUpperCase(); ]]]
+                        [[[ if (entity.state === 'on') return 'WET — LEAK'; if (entity.state === 'off') return 'DRY'; return (entity.state === 'unknown' ? 'NO STATE YET' : (entity.state || 'UNAVAILABLE')).toUpperCase(); ]]]
                       tap_action: { action: more-info }
                       styles:
                         card:
@@ -1989,11 +2031,11 @@ views:
                           - font-weight: 900
                     - type: custom:button-card
                       entity: switch.water_valve
-                      name: Water Valve
+                      name: Water Valve Switch
                       icon: mdi:valve
                       show_state: true
                       state_display: |
-                        [[[ if (entity.state === 'on') return 'OPEN'; if (entity.state === 'off') return 'CLOSED'; return (entity.state || 'UNKNOWN').toUpperCase(); ]]]
+                        [[[ if (entity.state === 'on') return 'SWITCH ON'; if (entity.state === 'off') return 'SWITCH OFF'; return (entity.state || 'UNKNOWN').toUpperCase(); ]]]
                       tap_action:
                         action: toggle
                         confirmation:
@@ -2012,6 +2054,46 @@ views:
                           - width: 22px
                         name: [{ color: '#f5f7f9', font-size: 10px }]
                         state: [{ color: '#f5f7f9', font-size: 10px, font-weight: 900 }]
+                - type: horizontal-stack
+                  cards:
+                    - type: custom:button-card
+                      entity: sensor.water_valve_flow
+                      name: Water Flow
+                      icon: mdi:water
+                      show_state: true
+                      state_display: |
+                        [[[ const v = Number(entity.state); return Number.isFinite(v) ? `${v.toFixed(2)} ${entity.attributes?.unit_of_measurement || 'm³/h'}` : (entity.state || 'UNAVAILABLE').toUpperCase(); ]]]
+                      tap_action: { action: more-info }
+                      styles:
+                        card:
+                          - height: 60px
+                          - border-radius: 14px
+                          - background: rgba(8,19,27,.96)
+                          - border: 1px solid rgba(56,201,255,.42)
+                        icon: [{ color: '#38c9ff', width: 20px }]
+                        name: [{ color: '#9fb0ba', font-size: 10px }]
+                        state: [{ color: '#f5f7f9', font-size: 11px, font-weight: 800 }]
+                    - type: custom:button-card
+                      entity: sensor.water_valve_current_device_status
+                      name: Valve Status
+                      icon: mdi:shield-water
+                      show_state: true
+                      state_display: |
+                        [[[ const labels = {normal_state:'NORMAL', water_shortage:'WATER SHORTAGE', water_leakage:'WATER LEAKAGE', 'water_shortage & water_leakage':'SHORTAGE + LEAKAGE'}; return labels[entity.state] || (entity.state || 'UNAVAILABLE').toUpperCase(); ]]]
+                      tap_action: { action: more-info }
+                      styles:
+                        card:
+                          - height: 60px
+                          - border-radius: 14px
+                          - background: rgba(8,19,27,.96)
+                          - border: |
+                              [[[ const s = entity.state || ''; return s.includes('leakage') ? '1px solid rgba(255,70,55,.95)' : s.includes('shortage') ? '1px solid rgba(255,190,65,.95)' : '1px solid rgba(75,220,120,.65)'; ]]]
+                        icon:
+                          - color: |
+                              [[[ const s = entity.state || ''; return s.includes('leakage') ? '#ff4637' : s.includes('shortage') ? '#ffc14d' : '#4bdc78'; ]]]
+                          - width: 20px
+                        name: [{ color: '#9fb0ba', font-size: 10px }]
+                        state: [{ color: '#f5f7f9', font-size: 10px, font-weight: 800 }]
                 - type: custom:button-card
                   template: berta_control
                   entity: light.berta_can_2_dev_kitchen_pendants
