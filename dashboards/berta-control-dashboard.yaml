@@ -1,0 +1,2430 @@
+title: Berta Control
+button_card_templates:
+  berta_control:
+    show_state: true
+    show_label: false
+    tap_action:
+      action: toggle
+    hold_action:
+      action: more-info
+    custom_fields:
+      toggle: |
+        [[[
+          const on = entity.state === 'on';
+          return `
+            <div class="berta-toggle ${on ? 'on' : 'off'}">
+              <div class="berta-toggle-knob"></div>
+            </div>
+          `;
+        ]]]
+    styles:
+      card:
+        - height: |
+            [[[
+              const w = window.innerWidth;
+              return (w >= 900 && w <= 1400) ? '54px' : '64px';
+            ]]]
+        - border-radius: 16px
+        - padding: |
+            [[[
+              const w = window.innerWidth;
+              return (w >= 900 && w <= 1400) ? '6px 8px' : '9px 12px';
+            ]]]
+        - background: rgba(10, 22, 30, 0.92)
+        - border: 1px solid rgba(68, 129, 157, 0.28)
+        - box-shadow: none
+      grid:
+        - grid-template-areas: '"i n s toggle"'
+        - grid-template-columns: |
+            [[[
+              const w = window.innerWidth;
+              return (w >= 900 && w <= 1400)
+                ? '34px minmax(0,1fr) min-content 46px'
+                : '42px 1fr min-content 52px';
+            ]]]
+        - align-items: center
+        - column-gap: |
+            [[[
+              const w = window.innerWidth;
+              return (w >= 900 && w <= 1400) ? '5px' : '8px';
+            ]]]
+      img_cell:
+        - justify-self: start
+        - width: 36px
+        - height: 36px
+      icon:
+        - width: 27px
+        - color: '#f7a23b'
+      name:
+        - justify-self: start
+        - font-size: 14px
+        - font-weight: 650
+        - color: '#f5f7f9'
+      state:
+        - justify-self: end
+        - font-size: 11px
+        - font-weight: 800
+        - text-transform: uppercase
+        - color: '#8e9ba5'
+      custom_fields:
+        toggle:
+          - justify-self: end
+          - align-self: center
+    state:
+      - value: 'on'
+        styles:
+          card:
+            - background: linear-gradient(90deg, rgba(9,25,35,.98), rgba(0,155,225,.24))
+            - border: 1px solid rgba(37,194,255,.72)
+            - box-shadow: 0 0 18px rgba(0,170,255,.22)
+          icon:
+            - color: '#25c2ff'
+            - filter: drop-shadow(0 0 7px rgba(37,194,255,.65))
+          state:
+            - color: '#25c2ff'
+      - value: 'off'
+        styles:
+          icon:
+            - color: '#f6a13b'
+    extra_styles: |
+      .berta-toggle {
+        width: 46px;
+        height: 26px;
+        border-radius: 999px;
+        padding: 2px;
+        box-sizing: border-box;
+        border: 1px solid rgba(160,175,185,.45);
+        background: rgba(120,130,138,.24);
+        transition: all .25s ease;
+      }
+      .berta-toggle-knob {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #d7dde1;
+        box-shadow: 0 1px 4px rgba(0,0,0,.35);
+        transform: translateX(0);
+        transition: all .25s ease;
+      }
+      .berta-toggle.on {
+        background: linear-gradient(180deg,#34ccff,#008ac8);
+        border-color: rgba(86,213,255,.9);
+        box-shadow: 0 0 10px rgba(0,180,255,.34);
+      }
+      .berta-toggle.on .berta-toggle-knob {
+        transform: translateX(20px);
+        background: white;
+      }
+  berta_status:
+    show_state: true
+    show_label: true
+    tap_action:
+      action: more-info
+    variables:
+      label_text: ''
+      state_text: ''
+    state_display: |
+      [[[
+        if (variables.state_text) return variables.state_text;
+        return entity.state;
+      ]]]
+    label: |
+      [[[
+        return variables.label_text || '';
+      ]]]
+    styles:
+      card:
+        - height: 82px
+        - border-radius: 14px
+        - padding: 8px
+        - background: rgba(10, 22, 30, 0.92)
+        - border: 1px solid rgba(68, 129, 157, 0.28)
+        - box-shadow: none
+      grid:
+        - grid-template-areas: '"i n" "i s" "i l"'
+        - grid-template-columns: 46px 1fr
+        - grid-template-rows: min-content min-content min-content
+      img_cell:
+        - align-self: center
+        - justify-self: center
+        - width: 40px
+        - height: 40px
+      icon:
+        - width: 30px
+        - color: '#25c2ff'
+      name:
+        - justify-self: start
+        - align-self: end
+        - font-size: 12px
+        - color: '#8ea8b8'
+      state:
+        - justify-self: start
+        - align-self: center
+        - font-size: 16px
+        - font-weight: 700
+        - color: '#f5f7f9'
+      label:
+        - justify-self: start
+        - align-self: start
+        - font-size: 11px
+        - font-weight: 650
+        - color: '#58d68d'
+  berta_nav:
+    show_state: false
+    styles:
+      card:
+        - height: 58px
+        - border-radius: 14px
+        - background: rgba(7, 17, 24, 0.90)
+        - border: 1px solid rgba(68, 129, 157, 0.18)
+        - box-shadow: none
+      grid:
+        - grid-template-areas: '"i" "n"'
+        - grid-template-rows: 1fr min-content
+      icon:
+        - width: 28px
+        - color: '#aeb8bf'
+      name:
+        - font-size: 12px
+        - color: '#dce3e7'
+  berta_tank:
+    show_state: true
+    show_icon: false
+    show_label: false
+    tap_action:
+      action: more-info
+    variables:
+      fill: '#28bffc'
+    custom_fields:
+      tank: |
+        [[[
+          const raw = parseFloat(entity.state);
+          const v = Number.isFinite(raw) ? Math.max(0, Math.min(100, raw)) : 0;
+          return `<div class="berta-tank-shell">
+                    <div class="berta-tank-fill" style="height:${v}%;background:${variables.fill};"></div>
+                  </div>`;
+        ]]]
+    styles:
+      card:
+        - height: |
+            [[[
+              const w = window.innerWidth;
+              return (w >= 900 && w <= 1400) ? '212px' : '250px';
+            ]]]
+        - padding: |
+            [[[
+              const w = window.innerWidth;
+              return (w >= 900 && w <= 1400) ? '8px 4px 8px' : '12px 8px 10px';
+            ]]]
+        - border-radius: 16px
+        - background: rgba(10, 22, 30, 0.92)
+        - border: 1px solid rgba(68, 129, 157, 0.28)
+        - box-shadow: none
+      grid:
+        - grid-template-areas: '"n" "tank" "s"'
+        - grid-template-rows: 32px 1fr 34px
+        - grid-template-columns: 1fr
+      name:
+        - align-self: center
+        - justify-self: center
+        - font-size: 13px
+        - font-weight: 650
+        - color: '#f5f7f9'
+      state:
+        - align-self: center
+        - justify-self: center
+        - font-size: 18px
+        - font-weight: 800
+        - color: '#f5f7f9'
+      custom_fields:
+        tank:
+          - align-self: stretch
+          - justify-self: stretch
+          - padding: 4px 10px
+    state_display: |
+      [[[
+        const raw = parseFloat(entity.state);
+        return Number.isFinite(raw) ? `${Math.round(raw)}%` : '—';
+      ]]]
+    extra_styles: |
+      .berta-tank-shell {
+        height: 100%;
+        width: 100%;
+        min-height: 180px;
+        border-radius: 14px;
+        border: 2px solid rgba(185,205,216,.55);
+        background: linear-gradient(180deg, rgba(7,17,24,.92), rgba(20,35,43,.88));
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        box-shadow: inset 0 0 18px rgba(0,0,0,.55);
+      }
+      .berta-tank-fill {
+        width: 100%;
+        min-height: 0;
+        transition: height 650ms ease;
+        box-shadow: 0 0 16px rgba(37,194,255,.34);
+      }
+      @media (min-width: 900px) and (max-width: 1400px) {
+        .berta-tank-shell {
+          min-height: 145px;
+        }
+      }
+views:
+  - title: Overview
+    path: overview
+    icon: mdi:home
+    panel: true
+    cards:
+      - type: custom:button-card
+        show_name: false
+        show_icon: false
+        styles:
+          card:
+            - min-height: calc(100vh - 56px)
+            - padding: |
+                [[[
+                  const w = window.innerWidth;
+                  return (w >= 900 && w <= 1400) ? '6px' : '12px';
+                ]]]
+            - border-radius: 0
+            - background: >-
+                radial-gradient(circle at 50% 25%, rgba(16,52,67,.32),
+                rgba(3,10,15,.98) 55%)
+            - box-shadow: none
+            - overflow: hidden
+          grid:
+            - grid-template-areas: '"left center right" "footer footer footer"'
+            - grid-template-columns: minmax(285px, 25%) minmax(520px, 48%) minmax(345px, 27%)
+            - grid-template-rows: 1fr auto
+            - column-gap: 10px
+            - row-gap: 6px
+            - align-items: stretch
+        custom_fields:
+          left:
+            do_not_eval: true
+            card:
+              type: vertical-stack
+              cards:
+                - type: markdown
+                  content: |
+                    ## ⚡ SWITCHES & OUTPUTS
+                    Lighting, power and RV systems
+                  card_mod:
+                    style: |
+                      ha-card {
+                        padding: 12px 16px 8px;
+                        border-radius: 18px 18px 10px 10px;
+                        border: 1px solid rgba(68,129,157,.28);
+                        background: rgba(8,19,27,.94);
+                        color: #f5f7f9;
+                        box-shadow: none;
+                      }
+                      ha-markdown h2 {
+                        margin: 0;
+                        color: #f5f7f9;
+                        letter-spacing: .04em;
+                      }
+                      ha-markdown p {
+                        margin: 4px 0 0;
+                        color: #69b8dc;
+                        font-size: 13px;
+                      }
+                - type: custom:button-card
+                  template: berta_control
+                  entity: light.berta_can_2_dev_kitchen_pendants
+                  name: Kitchen Pendants
+                  icon: mdi:ceiling-light
+                - type: custom:button-card
+                  template: berta_control
+                  entity: light.berta_can_2_dev_island_light
+                  name: Island Light
+                  icon: mdi:ceiling-light
+                - type: custom:button-card
+                  template: berta_control
+                  entity: light.berta_can_2_dev_awning_light_1
+                  name: Awning Light 1
+                  icon: mdi:awning-outline
+                - type: custom:button-card
+                  template: berta_control
+                  entity: light.berta_can_2_dev_awning_light_2
+                  name: Awning Light 2
+                  icon: mdi:awning-outline
+                - type: custom:button-card
+                  template: berta_control
+                  entity: light.berta_can_2_dev_under_body_lights
+                  name: Under Body Lights
+                  icon: mdi:car-light-high
+                - type: custom:button-card
+                  template: berta_control
+                  entity: light.berta_can_2_dev_scare_light
+                  name: Scare Light
+                  icon: mdi:lightbulb-alert-outline
+                - type: custom:button-card
+                  template: berta_control
+                  entity: switch.berta_can_2_dev_water_pump
+                  name: Water Pump
+                  icon: mdi:water-pump
+                - type: custom:button-card
+                  template: berta_control
+                  entity: switch.berta_can_2_dev_tank_heater
+                  name: Tank Heater
+                  icon: mdi:heating-coil
+          center:
+            do_not_eval: true
+            card:
+              type: vertical-stack
+              cards:
+                - type: custom:button-card
+                  show_name: false
+                  show_icon: false
+                  tap_action:
+                    action: none
+                  custom_fields:
+                    title: |
+                      [[[
+                        return `
+                          <div class="berta-title-wrap">
+                            <div class="berta-title-line">
+                              <span class="berta-metal">BERTA</span>
+                              <span class="berta-orange">CONTROL</span>
+                            </div>
+                            <div class="berta-subtitle">RV SYSTEMS DASHBOARD</div>
+                          </div>
+                        `;
+                      ]]]
+                  styles:
+                    card:
+                      - height: |
+                          [[[
+                            const w = window.innerWidth;
+                            return (w >= 900 && w <= 1400) ? '82px' : '112px';
+                          ]]]
+                      - border-radius: 18px
+                      - padding: 6px 8px
+                      - background: transparent
+                      - border: 0
+                      - box-shadow: none
+                    grid:
+                      - grid-template-areas: '"title"'
+                      - grid-template-columns: 1fr
+                      - grid-template-rows: 1fr
+                    custom_fields:
+                      title:
+                        - align-self: center
+                        - justify-self: stretch
+                  extra_styles: |
+                    .berta-title-wrap {
+                      text-align: center;
+                      line-height: 1;
+                    }
+                    .berta-title-line {
+                      display: flex;
+                      justify-content: center;
+                      align-items: baseline;
+                      gap: 18px;
+                      white-space: nowrap;
+                    }
+                    .berta-metal {
+                      font-size: 58px;
+                      font-weight: 950;
+                      letter-spacing: .055em;
+                      background: linear-gradient(180deg,#ffffff 0%,#dce1e4 44%,#909aa1 100%);
+                      -webkit-background-clip: text;
+                      color: transparent;
+                      text-shadow: 0 2px 12px rgba(255,255,255,.05);
+                    }
+                    .berta-orange {
+                      font-size: 58px;
+                      font-weight: 850;
+                      letter-spacing: .045em;
+                      color: #ff9638;
+                      text-shadow: 0 0 16px rgba(255,150,56,.18);
+                    }
+                    .berta-subtitle {
+                      margin-top: 10px;
+                      font-size: 13px;
+                      letter-spacing: .42em;
+                      color: #b7c0c6;
+                    }
+                    @media (min-width: 900px) and (max-width: 1400px) {
+                      .berta-metal,
+                      .berta-orange {
+                        font-size: 42px;
+                      }
+                      .berta-title-line {
+                        gap: 10px;
+                      }
+                      .berta-subtitle {
+                        margin-top: 7px;
+                        font-size: 10px;
+                        letter-spacing: .34em;
+                      }
+                    }
+                - type: horizontal-stack
+                  cards:
+                    - type: custom:button-card
+                      entity: weather.forecast_home
+                      name: Weather
+                      icon: |
+                        [[[
+                          const s = entity?.state || '';
+                          const icons = {
+                            'clear-night': 'mdi:weather-night',
+                            'cloudy': 'mdi:weather-cloudy',
+                            'exceptional': 'mdi:weather-hurricane',
+                            'fog': 'mdi:weather-fog',
+                            'hail': 'mdi:weather-hail',
+                            'lightning': 'mdi:weather-lightning',
+                            'lightning-rainy': 'mdi:weather-lightning-rainy',
+                            'partlycloudy': 'mdi:weather-partly-cloudy',
+                            'pouring': 'mdi:weather-pouring',
+                            'rainy': 'mdi:weather-rainy',
+                            'snowy': 'mdi:weather-snowy',
+                            'snowy-rainy': 'mdi:weather-snowy-rainy',
+                            'sunny': 'mdi:weather-sunny',
+                            'windy': 'mdi:weather-windy',
+                            'windy-variant': 'mdi:weather-windy-variant'
+                          };
+                          return icons[s] || 'mdi:weather-partly-cloudy';
+                        ]]]
+                      show_state: true
+                      state_display: |
+                        [[[
+                          const t = entity?.attributes?.temperature;
+                          const unit = entity?.attributes?.temperature_unit || '°F';
+                          const raw = entity?.state || 'unknown';
+                          const condition = raw
+                            .replaceAll('-', ' ')
+                            .replace(/\b\w/g, c => c.toUpperCase());
+                          if (Number.isFinite(Number(t))) {
+                            return `${Math.round(Number(t))}${unit} • ${condition}`;
+                          }
+                          return condition;
+                        ]]]
+                      tap_action:
+                        action: more-info
+                      styles:
+                        card:
+                          - height: 54px
+                          - border-radius: 14px
+                          - background: rgba(8,19,27,.94)
+                          - border: 1px solid rgba(56,201,255,.86)
+                          - box-shadow: 0 0 16px rgba(56,201,255,.24)
+                        icon:
+                          - color: '#38c9ff'
+                          - width: 20px
+                        name:
+                          - color: '#9fb0ba'
+                          - font-size: 11px
+                        state:
+                          - color: '#f5f7f9'
+                          - font-size: 12px
+                          - font-weight: 750
+                    - type: custom:button-card
+                      entity: sensor.berta_weather_alert_summary
+                      name: Weather Alerts
+                      icon: mdi:weather-lightning
+                      show_state: true
+                      state_display: |
+                        [[[
+                          const s = entity?.state || 'UNKNOWN';
+                          return s;
+                        ]]]
+                      tap_action:
+                        action: navigate
+                        navigation_path: /berta-control/weather-alerts
+                      styles:
+                        card:
+                          - height: 54px
+                          - border-radius: 14px
+                          - background: rgba(8,19,27,.94)
+                          - border: |
+                              [[[
+                                const state = (entity?.state || '').toUpperCase();
+                                const severity = (entity?.attributes?.severity || '').toUpperCase();
+                                if (state === 'CLEAR' || state === '0') return '1px solid rgba(75,220,120,.90)';
+                                if (state.includes('EMERGENCY') || severity === 'EXTREME') return '1px solid rgba(255,60,60,.98)';
+                                if (state.includes('WARNING') || severity === 'SEVERE') return '1px solid rgba(184,92,255,.98)';
+                                if (state.includes('WATCH')) return '1px solid rgba(255,218,70,.98)';
+                                if (state.includes('ADVISORY') || severity === 'MODERATE') return '1px solid rgba(255,153,46,.98)';
+                                return '1px solid rgba(255,205,70,.92)';
+                              ]]]
+                          - box-shadow: |
+                              [[[
+                                const state = (entity?.state || '').toUpperCase();
+                                const severity = (entity?.attributes?.severity || '').toUpperCase();
+                                if (state === 'CLEAR' || state === '0') return '0 0 16px rgba(75,220,120,.30)';
+                                if (state.includes('EMERGENCY') || severity === 'EXTREME') return '0 0 22px rgba(255,60,60,.52)';
+                                if (state.includes('WARNING') || severity === 'SEVERE') return '0 0 22px rgba(184,92,255,.50)';
+                                if (state.includes('WATCH')) return '0 0 18px rgba(255,218,70,.40)';
+                                if (state.includes('ADVISORY') || severity === 'MODERATE') return '0 0 18px rgba(255,153,46,.42)';
+                                return '0 0 16px rgba(255,205,70,.34)';
+                              ]]]
+                        icon:
+                          - color: |
+                              [[[
+                                const state = (entity?.state || '').toUpperCase();
+                                const severity = (entity?.attributes?.severity || '').toUpperCase();
+                                if (state === 'CLEAR' || state === '0') return '#4bdc78';
+                                if (state.includes('EMERGENCY') || severity === 'EXTREME') return '#ff3c3c';
+                                if (state.includes('WARNING') || severity === 'SEVERE') return '#b85cff';
+                                if (state.includes('WATCH')) return '#ffda46';
+                                if (state.includes('ADVISORY') || severity === 'MODERATE') return '#ff992e';
+                                return '#ffd24a';
+                              ]]]
+                          - width: 20px
+                        name:
+                          - color: '#9fb0ba'
+                          - font-size: 11px
+                        state:
+                          - color: '#f5f7f9'
+                          - font-size: 12px
+                          - font-weight: 800
+                    - type: custom:button-card
+                      entity: sensor.berta_burn_ban
+                      name: Burn Ban
+                      icon: mdi:fire-alert
+                      show_state: true
+                      state_display: |
+                        [[[
+                          const s = entity?.state || 'UNKNOWN';
+                          const county = entity?.attributes?.county;
+                          return county ? `${s} • ${county}` : s;
+                        ]]]
+                      tap_action:
+                        action: navigate
+                        navigation_path: /berta-control/burn-ban
+                      styles:
+                        card:
+                          - height: 54px
+                          - border-radius: 14px
+                          - background: rgba(8,19,27,.94)
+                          - border: |
+                              [[[
+                                const s = (entity?.state || '').toUpperCase();
+                                if (s.includes('ACTIVE')) return '1px solid rgba(255,70,55,.98)';
+                                if (s.includes('NO BURN BAN')) return '1px solid rgba(75,220,120,.90)';
+                                if (s.includes('OUT OF STATE')) return '1px solid rgba(85,180,255,.90)';
+                                return '1px solid rgba(255,205,70,.95)';
+                              ]]]
+                          - box-shadow: |
+                              [[[
+                                const s = (entity?.state || '').toUpperCase();
+                                if (s.includes('ACTIVE')) return '0 0 22px rgba(255,70,55,.50)';
+                                if (s.includes('NO BURN BAN')) return '0 0 16px rgba(75,220,120,.30)';
+                                if (s.includes('OUT OF STATE')) return '0 0 16px rgba(85,180,255,.28)';
+                                return '0 0 16px rgba(255,205,70,.34)';
+                              ]]]
+                        icon:
+                          - color: |
+                              [[[
+                                const s = (entity?.state || '').toUpperCase();
+                                if (s.includes('ACTIVE')) return '#ff4637';
+                                if (s.includes('NO BURN BAN')) return '#4bdc78';
+                                if (s.includes('OUT OF STATE')) return '#55b4ff';
+                                return '#ffd24a';
+                              ]]]
+                          - width: 20px
+                        name:
+                          - color: '#9fb0ba'
+                          - font-size: 11px
+                        state:
+                          - color: '#f5f7f9'
+                          - font-size: 11px
+                          - font-weight: 800
+                - type: markdown
+                  content: |
+                    ## 💧 WATER SAFETY
+                    Leak sensors should read **DRY**. Tap the valve card and confirm before changing the shutoff.
+                  card_mod:
+                    style: |
+                      ha-card {
+                        padding: 9px 14px 7px;
+                        border-radius: 16px 16px 10px 10px;
+                        border: 1px solid rgba(56,201,255,.42);
+                        background: rgba(8,19,27,.96);
+                        color: #f5f7f9;
+                        box-shadow: none;
+                      }
+                      ha-markdown h2 {
+                        margin: 0;
+                        color: #f5f7f9;
+                        letter-spacing: .035em;
+                      }
+                      ha-markdown p {
+                        margin: 5px 0 0;
+                        color: #9fb0ba;
+                        font-size: 12px;
+                      }
+                - type: horizontal-stack
+                  cards:
+                    - type: custom:button-card
+                      entity: binary_sensor.bathroom_leak_sensor_water_leak
+                      name: Bathroom
+                      icon: mdi:water-alert
+                      show_state: true
+                      state_display: |
+                        [[[
+                          if (entity.state === 'on') return 'WET — LEAK';
+                          if (entity.state === 'off') return 'DRY';
+                          return (entity.state || 'UNKNOWN').toUpperCase();
+                        ]]]
+                      tap_action:
+                        action: more-info
+                      styles:
+                        card:
+                          - height: 76px
+                          - border-radius: 14px
+                          - background: rgba(8,19,27,.96)
+                          - border: |
+                              [[[ return entity.state === 'on' ? '2px solid #ff4637' : entity.state === 'off' ? '1px solid rgba(75,220,120,.72)' : '1px solid rgba(255,205,70,.85)'; ]]]
+                          - box-shadow: |
+                              [[[ return entity.state === 'on' ? '0 0 20px rgba(255,70,55,.44)' : 'none'; ]]]
+                        icon:
+                          - color: |
+                              [[[ return entity.state === 'on' ? '#ff4637' : entity.state === 'off' ? '#4bdc78' : '#ffd24a'; ]]]
+                          - width: 24px
+                        name:
+                          - color: '#f5f7f9'
+                          - font-size: 11px
+                        state:
+                          - color: |
+                              [[[ return entity.state === 'on' ? '#ff7168' : entity.state === 'off' ? '#58d68d' : '#ffd24a'; ]]]
+                          - font-size: 11px
+                          - font-weight: 900
+                    - type: custom:button-card
+                      entity: binary_sensor.0x00158d008bbac50f_water_leak
+                      name: Leak Sensor C50F
+                      icon: mdi:water-alert
+                      show_state: true
+                      state_display: |
+                        [[[ if (entity.state === 'on') return 'WET — LEAK'; if (entity.state === 'off') return 'DRY'; return (entity.state || 'UNKNOWN').toUpperCase(); ]]]
+                      tap_action:
+                        action: more-info
+                      styles:
+                        card:
+                          - height: 76px
+                          - border-radius: 14px
+                          - background: rgba(8,19,27,.96)
+                          - border: |
+                              [[[ return entity.state === 'on' ? '2px solid #ff4637' : entity.state === 'off' ? '1px solid rgba(75,220,120,.72)' : '1px solid rgba(255,205,70,.85)'; ]]]
+                          - box-shadow: |
+                              [[[ return entity.state === 'on' ? '0 0 20px rgba(255,70,55,.44)' : 'none'; ]]]
+                        icon:
+                          - color: |
+                              [[[ return entity.state === 'on' ? '#ff4637' : entity.state === 'off' ? '#4bdc78' : '#ffd24a'; ]]]
+                          - width: 24px
+                        name:
+                          - color: '#f5f7f9'
+                          - font-size: 11px
+                        state:
+                          - color: |
+                              [[[ return entity.state === 'on' ? '#ff7168' : entity.state === 'off' ? '#58d68d' : '#ffd24a'; ]]]
+                          - font-size: 11px
+                          - font-weight: 900
+                    - type: custom:button-card
+                      entity: binary_sensor.0x00158d008c865795_water_leak
+                      name: Leak Sensor 5795
+                      icon: mdi:water-alert
+                      show_state: true
+                      state_display: |
+                        [[[ if (entity.state === 'on') return 'WET — LEAK'; if (entity.state === 'off') return 'DRY'; return (entity.state || 'UNKNOWN').toUpperCase(); ]]]
+                      tap_action:
+                        action: more-info
+                      styles:
+                        card:
+                          - height: 76px
+                          - border-radius: 14px
+                          - background: rgba(8,19,27,.96)
+                          - border: |
+                              [[[ return entity.state === 'on' ? '2px solid #ff4637' : entity.state === 'off' ? '1px solid rgba(75,220,120,.72)' : '1px solid rgba(255,205,70,.85)'; ]]]
+                          - box-shadow: |
+                              [[[ return entity.state === 'on' ? '0 0 20px rgba(255,70,55,.44)' : 'none'; ]]]
+                        icon:
+                          - color: |
+                              [[[ return entity.state === 'on' ? '#ff4637' : entity.state === 'off' ? '#4bdc78' : '#ffd24a'; ]]]
+                          - width: 24px
+                        name:
+                          - color: '#f5f7f9'
+                          - font-size: 11px
+                        state:
+                          - color: |
+                              [[[ return entity.state === 'on' ? '#ff7168' : entity.state === 'off' ? '#58d68d' : '#ffd24a'; ]]]
+                          - font-size: 11px
+                          - font-weight: 900
+                - type: custom:button-card
+                  entity: switch.water_valve
+                  name: Water Shutoff Valve
+                  icon: mdi:valve
+                  show_state: true
+                  state_display: |
+                    [[[ if (entity.state === 'on') return 'OPEN'; if (entity.state === 'off') return 'CLOSED'; return (entity.state || 'UNKNOWN').toUpperCase(); ]]]
+                  tap_action:
+                    action: toggle
+                    confirmation:
+                      text: Toggle the water shutoff valve?
+                  hold_action:
+                    action: more-info
+                  styles:
+                    card:
+                      - height: 64px
+                      - margin-top: 6px
+                      - border-radius: 14px
+                      - background: rgba(8,19,27,.96)
+                      - border: |
+                          [[[ return entity.state === 'on' ? '1px solid rgba(255,153,46,.95)' : entity.state === 'off' ? '1px solid rgba(75,220,120,.72)' : '1px solid rgba(255,205,70,.85)'; ]]]
+                    icon:
+                      - color: |
+                          [[[ return entity.state === 'on' ? '#ff992e' : entity.state === 'off' ? '#4bdc78' : '#ffd24a'; ]]]
+                      - width: 26px
+                    name:
+                      - color: '#f5f7f9'
+                      - font-size: 13px
+                      - font-weight: 800
+                    state:
+                      - color: '#f5f7f9'
+                      - font-size: 12px
+                      - font-weight: 900
+          right:
+            do_not_eval: true
+            card:
+              type: vertical-stack
+              cards:
+                - type: markdown
+                  content: |
+                    ## 💧 TANK LEVELS
+                    Know your levels. Go further.
+                  card_mod:
+                    style: |
+                      ha-card {
+                        padding: 12px 16px 8px;
+                        border-radius: 18px 18px 10px 10px;
+                        border: 1px solid rgba(68,129,157,.28);
+                        background: rgba(8,19,27,.94);
+                        color: #f5f7f9;
+                        box-shadow: none;
+                      }
+                      ha-markdown h2 {
+                        margin: 0;
+                        color: #f5f7f9;
+                      }
+                      ha-markdown p {
+                        margin: 4px 0 0;
+                        color: #69b8dc;
+                        font-size: 13px;
+                      }
+                - type: horizontal-stack
+                  cards:
+                    - type: custom:button-card
+                      template: berta_tank
+                      entity: sensor.berta_can_2_dev_fresh_tank_level
+                      name: Fresh
+                      variables:
+                        fill: linear-gradient(180deg,#38d5ff,#007cc4)
+                    - type: custom:button-card
+                      template: berta_tank
+                      entity: sensor.berta_can_2_dev_grey_tank_1_level
+                      name: Grey 1
+                      variables:
+                        fill: linear-gradient(180deg,#c7d0d5,#65747e)
+                    - type: custom:button-card
+                      template: berta_tank
+                      entity: sensor.berta_can_2_dev_grey_tank_2_level
+                      name: Grey 2
+                      variables:
+                        fill: linear-gradient(180deg,#c7d0d5,#65747e)
+                    - type: custom:button-card
+                      template: berta_tank
+                      entity: sensor.berta_can_2_dev_grey_tank_3_level
+                      name: Grey 3
+                      variables:
+                        fill: linear-gradient(180deg,#c7d0d5,#65747e)
+                    - type: custom:button-card
+                      template: berta_tank
+                      entity: sensor.berta_can_2_dev_black_tank_level
+                      name: Black
+                      variables:
+                        fill: linear-gradient(180deg,#ffc658,#d8870f)
+                - type: markdown
+                  content: |
+                    ## 🚨 EMERGENCY INFO
+                  card_mod:
+                    style: |
+                      ha-card {
+                        padding: 4px 12px;
+                        border-radius: 12px;
+                        border: 1px solid rgba(255,80,80,.28);
+                        background: rgba(8,19,27,.94);
+                        color: #f5f7f9;
+                        box-shadow: 0 0 14px rgba(255,80,80,.08);
+                        min-height: 34px;
+                      }
+                      ha-markdown h2 {
+                        margin: 0;
+                        font-size: 18px;
+                        line-height: 28px;
+                      }
+                - type: horizontal-stack
+                  cards:
+                    - type: custom:button-card
+                      name: ICE
+                      icon: mdi:account-alert-outline
+                      show_state: false
+                      tap_action:
+                        action: navigate
+                        navigation_path: /berta-control/ice
+                      hold_action:
+                        action: none
+                      styles:
+                        card:
+                          - height: 54px
+                          - border-radius: 14px
+                          - background: rgba(10,22,30,.92)
+                          - border: 1px solid rgba(68,129,157,.34)
+                          - box-shadow: 0 0 12px rgba(37,194,255,.08)
+                        grid:
+                          - grid-template-areas: '"i n"'
+                          - grid-template-columns: 42px 1fr
+                        icon:
+                          - width: 23px
+                          - color: '#25c2ff'
+                        name:
+                          - justify-self: start
+                          - color: '#f5f7f9'
+                          - font-size: 18px
+                          - font-weight: 850
+                          - letter-spacing: .08em
+                    - type: custom:button-card
+                      name: LOCAL HELP
+                      icon: mdi:map-marker-question-outline
+                      show_state: false
+                      tap_action:
+                        action: none
+                      hold_action:
+                        action: none
+                      styles:
+                        card:
+                          - height: 54px
+                          - border-radius: 14px
+                          - background: rgba(10,22,30,.72)
+                          - border: 1px dashed rgba(132,145,153,.38)
+                          - box-shadow: none
+                        grid:
+                          - grid-template-areas: '"i n"'
+                          - grid-template-columns: 42px 1fr
+                        icon:
+                          - width: 23px
+                          - color: '#81919a'
+                        name:
+                          - justify-self: start
+                          - color: '#9ba8af'
+                          - font-size: 15px
+                          - font-weight: 750
+                          - letter-spacing: .05em
+                - type: custom:button-card
+                  show_name: false
+                  show_icon: false
+                  tap_action:
+                    action: url
+                    url_path: |
+                      [[[
+                        const lat = states['sensor.gn_gga_2_decimal']?.state;
+                        const lon = states['sensor.gn_gga_4_decimal']?.state;
+                        if (!lat || !lon || lat === 'unknown' || lon === 'unknown' ||
+                            lat === 'unavailable' || lon === 'unavailable') {
+                          return 'https://maps.google.com/';
+                        }
+                        return `https://maps.google.com/maps?z=18&t=k&q=loc:${encodeURIComponent(lat)}+${encodeURIComponent(lon)}`;
+                      ]]]
+                  custom_fields:
+                    coords: |
+                      [[[
+                        const lat = states['sensor.gn_gga_2_decimal']?.state ?? '—';
+                        const lon = states['sensor.gn_gga_4_decimal']?.state ?? '—';
+                        return `
+                          <div class="coord-wrap">
+                            <div class="coord-label">CURRENT POSITION</div>
+                            <div class="coord-line">
+                              <span>LAT ${lat}</span>
+                              <span>LON ${lon}</span>
+                            </div>
+                            <div class="coord-hint">TAP TO OPEN MAP</div>
+                          </div>
+                        `;
+                      ]]]
+                  styles:
+                    card:
+                      - height: |
+                          [[[
+                            const w = window.innerWidth;
+                            return (w >= 900 && w <= 1400) ? '70px' : '90px';
+                          ]]]
+                      - border-radius: 14px
+                      - background: rgba(10,22,30,.92)
+                      - border: 1px solid rgba(68,129,157,.34)
+                      - box-shadow: 0 0 12px rgba(37,194,255,.06)
+                      - padding: 9px 14px
+                    grid:
+                      - grid-template-areas: '"coords"'
+                    custom_fields:
+                      coords:
+                        - justify-self: stretch
+                  extra_styles: |
+                    .coord-wrap {
+                      width: 100%;
+                      text-align: center;
+                    }
+                    .coord-label {
+                      color: #8ec4dc;
+                      font-size: 13px;
+                      font-weight: 850;
+                      letter-spacing: .17em;
+                      margin-bottom: 8px;
+                    }
+                    .coord-line {
+                      display: flex;
+                      justify-content: space-around;
+                      gap: 16px;
+                      color: #f5f7f9;
+                      font-size: 15px;
+                      font-weight: 850;
+                    }
+                    .coord-hint {
+                      margin-top: 6px;
+                      color: #647f8d;
+                      font-size: 8px;
+                      font-weight: 700;
+                      letter-spacing: .16em;
+                    }
+                - type: custom:button-card
+                  name: 911 LOCATE
+                  show_icon: false
+                  show_state: false
+                  tap_action:
+                    action: none
+                  hold_action:
+                    action: none
+                  custom_fields:
+                    left_icon: |
+                      [[[
+                        return `<ha-icon icon="mdi:alarm-light-outline"></ha-icon>`;
+                      ]]]
+                    right_icon: |
+                      [[[
+                        return `<ha-icon icon="mdi:alarm-light-outline"></ha-icon>`;
+                      ]]]
+                  styles:
+                    card:
+                      - height: |
+                          [[[
+                            const w = window.innerWidth;
+                            return (w >= 900 && w <= 1400) ? '68px' : '92px';
+                          ]]]
+                      - border-radius: 16px
+                      - background: >-
+                          linear-gradient(180deg, rgba(150,12,18,.98),
+                          rgba(92,7,11,.98))
+                      - border: 2px solid rgba(255,82,82,.95)
+                      - box-shadow: 0 0 22px rgba(255,55,55,.34)
+                    grid:
+                      - grid-template-areas: '"left_icon n right_icon"'
+                      - grid-template-columns: 58px 1fr 58px
+                      - align-items: center
+                    name:
+                      - justify-self: center
+                      - color: '#ffffff'
+                      - font-size: 26px
+                      - font-weight: 950
+                      - letter-spacing: .08em
+                    custom_fields:
+                      left_icon:
+                        - justify-self: center
+                        - color: '#ffffff'
+                      right_icon:
+                        - justify-self: center
+                        - color: '#ffffff'
+                  extra_styles: |
+                    #left_icon ha-icon,
+                    #right_icon ha-icon {
+                      width: 34px;
+                      height: 34px;
+                      color: #ffffff;
+                      filter: drop-shadow(0 0 8px rgba(255,255,255,.18));
+                    }
+          footer:
+            do_not_eval: true
+            card:
+              type: vertical-stack
+              cards:
+                - type: custom:button-card
+                  show_name: false
+                  show_icon: false
+                  tap_action:
+                    action: none
+                  custom_fields:
+                    footerline: |
+                      [[[
+                        return `
+                          <div class="berta-footerline">
+                            <span>CONNECTED</span>
+                            <span class="dot">•</span>
+                            <span>MONITORED</span>
+                            <span class="dot">•</span>
+                            <span>READY FOR MORE</span>
+                            <span class="berta-word">BERTA</span>
+                          </div>
+                        `;
+                      ]]]
+                  styles:
+                    card:
+                      - height: 34px
+                      - padding: 0 8px
+                      - background: transparent
+                      - border: 0
+                      - box-shadow: none
+                    grid:
+                      - grid-template-areas: '"footerline"'
+                    custom_fields:
+                      footerline:
+                        - justify-self: stretch
+                  extra_styles: |
+                    .berta-footerline {
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      gap: 12px;
+                      color: #728995;
+                      font-size: 10px;
+                      letter-spacing: .13em;
+                      white-space: nowrap;
+                    }
+                    .berta-footerline .dot {
+                      color: #ff9638;
+                    }
+                    .berta-footerline .berta-word {
+                      margin-left: 12px;
+                      color: #ff9638;
+                      font-size: 11px;
+                      font-weight: 900;
+                      letter-spacing: .20em;
+                    }
+                - type: grid
+                  columns: 7
+                  square: false
+                  cards:
+                    - type: custom:button-card
+                      template: berta_nav
+                      name: Overview
+                      icon: mdi:home
+                      styles:
+                        card:
+                          - background: >-
+                              linear-gradient(180deg,rgba(255,150,56,.26),rgba(60,34,8,.36))
+                          - border: 1px solid rgba(255,150,56,.45)
+                        icon:
+                          - color: '#ff9638'
+                        name:
+                          - color: '#ffb05d'
+                    - type: custom:button-card
+                      template: berta_nav
+                      name: Lights
+                      icon: mdi:lightbulb-outline
+                      tap_action:
+                        action: none
+                    - type: custom:button-card
+                      template: berta_nav
+                      name: Climate
+                      icon: mdi:thermometer
+                      tap_action:
+                        action: navigate
+                        navigation_path: /berta-control/climate
+                    - type: custom:button-card
+                      template: berta_nav
+                      name: Power
+                      icon: mdi:lightning-bolt-outline
+                      tap_action:
+                        action: none
+                    - type: custom:button-card
+                      template: berta_nav
+                      name: Tanks
+                      icon: mdi:water-outline
+                      tap_action:
+                        action: none
+                    - type: custom:button-card
+                      template: berta_nav
+                      name: Systems
+                      icon: mdi:cog-outline
+                      tap_action:
+                        action: none
+                    - type: custom:button-card
+                      template: berta_nav
+                      name: Berta
+                      icon: mdi:heart-outline
+                      tap_action:
+                        action: none
+  - title: Climate & Doors
+    path: climate
+    icon: mdi:home-thermometer-outline
+    panel: true
+    cards:
+      - type: custom:button-card
+        show_name: false
+        show_icon: false
+        tap_action:
+          action: none
+        styles:
+          card:
+            - min-height: calc(100vh - 56px)
+            - padding: 12px
+            - border-radius: 0
+            - background: >-
+                radial-gradient(circle at 50% 20%, rgba(16,52,67,.30),
+                rgba(3,10,15,.98) 58%)
+            - box-shadow: none
+            - overflow: visible
+          grid:
+            - grid-template-areas: '"content"'
+            - grid-template-columns: minmax(0, 1100px)
+            - justify-content: center
+        custom_fields:
+          content:
+            do_not_eval: true
+            card:
+              type: vertical-stack
+              cards:
+                - type: markdown
+                  content: |
+                    ## 🌡️ CLIMATE & DOORS
+                    Interior environment and cargo/service access status
+                  card_mod:
+                    style: |
+                      ha-card {
+                        padding: 12px 16px 10px;
+                        border-radius: 18px;
+                        border: 1px solid rgba(68,129,157,.28);
+                        background: rgba(8,19,27,.94);
+                        color: #f5f7f9;
+                        box-shadow: none;
+                      }
+                      ha-markdown h2 {
+                        margin: 0;
+                        color: #f5f7f9;
+                        letter-spacing: .04em;
+                      }
+                      ha-markdown p {
+                        margin: 4px 0 0;
+                        color: #69b8dc;
+                        font-size: 13px;
+                      }
+                - type: markdown
+                  content: |
+                    ### INTERIOR CLIMATE
+                  card_mod:
+                    style: |
+                      ha-card {
+                        padding: 8px 12px 2px;
+                        background: transparent;
+                        border: 0;
+                        box-shadow: none;
+                        color: #38c9ff;
+                      }
+                      ha-markdown h3 {
+                        margin: 0;
+                        color: #38c9ff;
+                        letter-spacing: .10em;
+                        font-size: 13px;
+                      }
+                - type: grid
+                  columns: 4
+                  square: false
+                  cards:
+                    - type: custom:button-card
+                      template: berta_status
+                      entity: sensor.berta_living_room_temperature
+                      name: Living Room
+                      icon: mdi:thermometer
+                      variables:
+                        label_text: Temperature
+                      state_display: |
+                        [[[
+                          const v = Number(entity?.state);
+                          return Number.isFinite(v) ? `${v.toFixed(1)} °F` : 'OFFLINE';
+                        ]]]
+                      styles:
+                        icon:
+                          - color: '#ff9638'
+                    - type: custom:button-card
+                      template: berta_status
+                      entity: sensor.berta_living_room_humidity
+                      name: Living Room
+                      icon: mdi:water-percent
+                      variables:
+                        label_text: Humidity
+                      state_display: |
+                        [[[
+                          const v = Number(entity?.state);
+                          return Number.isFinite(v) ? `${v.toFixed(1)} %` : 'OFFLINE';
+                        ]]]
+                    - type: custom:button-card
+                      template: berta_status
+                      entity: sensor.berta_bedroom_temperature
+                      name: Bedroom
+                      icon: mdi:thermometer
+                      variables:
+                        label_text: Temperature
+                      state_display: |
+                        [[[
+                          const v = Number(entity?.state);
+                          return Number.isFinite(v) ? `${v.toFixed(1)} °F` : 'OFFLINE';
+                        ]]]
+                      styles:
+                        icon:
+                          - color: '#ff9638'
+                    - type: custom:button-card
+                      template: berta_status
+                      entity: sensor.berta_bedroom_humidity
+                      name: Bedroom
+                      icon: mdi:water-percent
+                      variables:
+                        label_text: Humidity
+                      state_display: |
+                        [[[
+                          const v = Number(entity?.state);
+                          return Number.isFinite(v) ? `${v.toFixed(1)} %` : 'OFFLINE';
+                        ]]]
+                - type: custom:button-card
+                  entity: sensor.berta_door_summary
+                  name: Cargo / Service Door Status
+                  icon: mdi:door-closed-lock
+                  show_state: true
+                  show_label: true
+                  label: |
+                    [[[
+                      if (entity.state === 'ALL CLOSED') return 'All monitored doors secure';
+                      if (entity.state === 'OPEN') return 'One or more monitored doors are open';
+                      return 'One or more door sensors are offline';
+                    ]]]
+                  state_display: |
+                    [[[
+                      return entity?.state || 'UNKNOWN';
+                    ]]]
+                  tap_action:
+                    action: more-info
+                  styles:
+                    card:
+                      - height: 86px
+                      - border-radius: 16px
+                      - padding: 10px 14px
+                      - background: |
+                          [[[
+                            if (entity.state === 'OPEN')
+                              return 'linear-gradient(90deg,rgba(62,10,10,.96),rgba(105,18,12,.82))';
+                            if (entity.state === 'ALL CLOSED')
+                              return 'linear-gradient(90deg,rgba(8,34,24,.96),rgba(10,62,42,.72))';
+                            return 'linear-gradient(90deg,rgba(52,38,7,.96),rgba(84,57,8,.78))';
+                          ]]]
+                      - border: |
+                          [[[
+                            if (entity.state === 'OPEN') return '1px solid rgba(255,78,65,.75)';
+                            if (entity.state === 'ALL CLOSED') return '1px solid rgba(72,220,130,.55)';
+                            return '1px solid rgba(255,190,65,.65)';
+                          ]]]
+                      - box-shadow: |
+                          [[[
+                            if (entity.state === 'OPEN') return '0 0 18px rgba(255,60,45,.18)';
+                            if (entity.state === 'ALL CLOSED') return '0 0 16px rgba(60,210,125,.12)';
+                            return '0 0 16px rgba(255,180,40,.12)';
+                          ]]]
+                    grid:
+                      - grid-template-areas: '"i n s" "i l l"'
+                      - grid-template-columns: 52px 1fr auto
+                      - grid-template-rows: 1fr 1fr
+                    icon:
+                      - width: 34px
+                      - color: |
+                          [[[
+                            if (entity.state === 'OPEN') return '#ff5b50';
+                            if (entity.state === 'ALL CLOSED') return '#58d68d';
+                            return '#ffc14d';
+                          ]]]
+                    name:
+                      - justify-self: start
+                      - color: '#f5f7f9'
+                      - font-size: 14px
+                      - font-weight: 800
+                    state:
+                      - justify-self: end
+                      - color: |
+                          [[[
+                            if (entity.state === 'OPEN') return '#ff7168';
+                            if (entity.state === 'ALL CLOSED') return '#58d68d';
+                            return '#ffc14d';
+                          ]]]
+                      - font-size: 15px
+                      - font-weight: 900
+                    label:
+                      - justify-self: start
+                      - color: '#9fb0ba'
+                      - font-size: 11px
+                - type: markdown
+                  content: |
+                    ### CARGO & SERVICE DOORS
+                  card_mod:
+                    style: |
+                      ha-card {
+                        padding: 8px 12px 2px;
+                        background: transparent;
+                        border: 0;
+                        box-shadow: none;
+                        color: #38c9ff;
+                      }
+                      ha-markdown h3 {
+                        margin: 0;
+                        color: #38c9ff;
+                        letter-spacing: .10em;
+                        font-size: 13px;
+                      }
+                - type: grid
+                  columns: 4
+                  square: false
+                  cards:
+                    - type: custom:button-card
+                      entity: sensor.berta_bedroom_cargo_door_status
+                      name: Bedroom Cargo
+                      icon: mdi:door
+                      show_state: true
+                      tap_action:
+                        action: more-info
+                      styles:
+                        card:
+                          - height: 96px
+                          - border-radius: 16px
+                          - background: rgba(8,19,27,.94)
+                          - border: |
+                              [[[
+                                if (entity.state === 'OPEN') return '1px solid rgba(255,78,65,.72)';
+                                if (entity.state === 'CLOSED') return '1px solid rgba(72,220,130,.38)';
+                                return '1px solid rgba(255,190,65,.60)';
+                              ]]]
+                        icon:
+                          - width: 30px
+                          - color: |
+                              [[[
+                                if (entity.state === 'OPEN') return '#ff5b50';
+                                if (entity.state === 'CLOSED') return '#58d68d';
+                                return '#ffc14d';
+                              ]]]
+                        name:
+                          - color: '#9fb0ba'
+                          - font-size: 12px
+                        state:
+                          - color: |
+                              [[[
+                                if (entity.state === 'OPEN') return '#ff7168';
+                                if (entity.state === 'CLOSED') return '#58d68d';
+                                return '#ffc14d';
+                              ]]]
+                          - font-size: 14px
+                          - font-weight: 900
+                    - type: custom:button-card
+                      entity: sensor.berta_living_room_cargo_door_status
+                      name: Living Room Cargo
+                      icon: mdi:door
+                      show_state: true
+                      tap_action:
+                        action: more-info
+                      styles:
+                        card:
+                          - height: 96px
+                          - border-radius: 16px
+                          - background: rgba(8,19,27,.94)
+                          - border: |
+                              [[[
+                                if (entity.state === 'OPEN') return '1px solid rgba(255,78,65,.72)';
+                                if (entity.state === 'CLOSED') return '1px solid rgba(72,220,130,.38)';
+                                return '1px solid rgba(255,190,65,.60)';
+                              ]]]
+                        icon:
+                          - width: 30px
+                          - color: |
+                              [[[
+                                if (entity.state === 'OPEN') return '#ff5b50';
+                                if (entity.state === 'CLOSED') return '#58d68d';
+                                return '#ffc14d';
+                              ]]]
+                        name:
+                          - color: '#9fb0ba'
+                          - font-size: 12px
+                        state:
+                          - color: |
+                              [[[
+                                if (entity.state === 'OPEN') return '#ff7168';
+                                if (entity.state === 'CLOSED') return '#58d68d';
+                                return '#ffc14d';
+                              ]]]
+                          - font-size: 14px
+                          - font-weight: 900
+                    - type: custom:button-card
+                      entity: sensor.berta_nautilus_panel_door_status
+                      name: Nautilus Panel
+                      icon: mdi:door
+                      show_state: true
+                      tap_action:
+                        action: more-info
+                      styles:
+                        card:
+                          - height: 96px
+                          - border-radius: 16px
+                          - background: rgba(8,19,27,.94)
+                          - border: |
+                              [[[
+                                if (entity.state === 'OPEN') return '1px solid rgba(255,78,65,.72)';
+                                if (entity.state === 'CLOSED') return '1px solid rgba(72,220,130,.38)';
+                                return '1px solid rgba(255,190,65,.60)';
+                              ]]]
+                        icon:
+                          - width: 30px
+                          - color: |
+                              [[[
+                                if (entity.state === 'OPEN') return '#ff5b50';
+                                if (entity.state === 'CLOSED') return '#58d68d';
+                                return '#ffc14d';
+                              ]]]
+                        name:
+                          - color: '#9fb0ba'
+                          - font-size: 12px
+                        state:
+                          - color: |
+                              [[[
+                                if (entity.state === 'OPEN') return '#ff7168';
+                                if (entity.state === 'CLOSED') return '#58d68d';
+                                return '#ffc14d';
+                              ]]]
+                          - font-size: 14px
+                          - font-weight: 900
+                    - type: custom:button-card
+                      entity: sensor.berta_passenger_cargo_door_status
+                      name: Passenger Cargo
+                      icon: mdi:door
+                      show_state: true
+                      tap_action:
+                        action: more-info
+                      styles:
+                        card:
+                          - height: 96px
+                          - border-radius: 16px
+                          - background: rgba(8,19,27,.94)
+                          - border: |
+                              [[[
+                                if (entity.state === 'OPEN') return '1px solid rgba(255,78,65,.72)';
+                                if (entity.state === 'CLOSED') return '1px solid rgba(72,220,130,.38)';
+                                return '1px solid rgba(255,190,65,.60)';
+                              ]]]
+                        icon:
+                          - width: 30px
+                          - color: |
+                              [[[
+                                if (entity.state === 'OPEN') return '#ff5b50';
+                                if (entity.state === 'CLOSED') return '#58d68d';
+                                return '#ffc14d';
+                              ]]]
+                        name:
+                          - color: '#9fb0ba'
+                          - font-size: 12px
+                        state:
+                          - color: |
+                              [[[
+                                if (entity.state === 'OPEN') return '#ff7168';
+                                if (entity.state === 'CLOSED') return '#58d68d';
+                                return '#ffc14d';
+                              ]]]
+                          - font-size: 14px
+                          - font-weight: 900
+                - type: custom:button-card
+                  name: Back to Berta
+                  icon: mdi:arrow-left
+                  tap_action:
+                    action: navigate
+                    navigation_path: /berta-control/overview
+                  styles:
+                    card:
+                      - height: 54px
+                      - border-radius: 14px
+                      - background: rgba(8,19,27,.94)
+                      - border: 1px solid rgba(56,201,255,.55)
+                    icon:
+                      - color: '#38c9ff'
+                    name:
+                      - color: '#f5f7f9'
+                      - font-weight: 800
+  - title: Mobile
+    path: mobile
+    icon: mdi:cellphone
+    type: panel
+    cards:
+      - type: custom:button-card
+        show_name: false
+        show_icon: false
+        tap_action:
+          action: none
+        styles:
+          card:
+            - min-height: calc(100vh - 56px)
+            - padding: 8px
+            - border-radius: 0
+            - background: >-
+                radial-gradient(circle at 50% 10%, rgba(16,52,67,.30),
+                rgba(3,10,15,.98) 48%)
+            - box-shadow: none
+            - overflow: visible
+          grid:
+            - grid-template-areas: '"content"'
+            - grid-template-columns: minmax(0, 1fr)
+            - grid-template-rows: auto
+        custom_fields:
+          content:
+            do_not_eval: true
+            card:
+              type: vertical-stack
+              cards:
+                - type: custom:button-card
+                  show_name: false
+                  show_icon: false
+                  tap_action:
+                    action: none
+                  custom_fields:
+                    title: |
+                      [[[
+                        return `
+                          <div class="berta-mobile-title">
+                            <span class="berta-metal">BERTA</span>
+                            <span class="berta-orange">CONTROL</span>
+                          </div>
+                          <div class="berta-mobile-sub">MOBILE CONTROL CENTER</div>
+                        `;
+                      ]]]
+                  styles:
+                    card:
+                      - height: 72px
+                      - padding: 5px
+                      - border-radius: 16px
+                      - background: rgba(8,19,27,.94)
+                      - border: 1px solid rgba(68,129,157,.28)
+                      - box-shadow: none
+                    grid:
+                      - grid-template-areas: '"title"'
+                    custom_fields:
+                      title:
+                        - justify-self: center
+                        - align-self: center
+                  extra_styles: |
+                    .berta-mobile-title {
+                      display: flex;
+                      align-items: baseline;
+                      justify-content: center;
+                      gap: 8px;
+                      line-height: 1;
+                      white-space: nowrap;
+                    }
+                    .berta-metal,
+                    .berta-orange {
+                      font-size: 29px;
+                      font-weight: 950;
+                    }
+                    .berta-metal {
+                      letter-spacing: .04em;
+                      background: linear-gradient(180deg,#ffffff 0%,#dce1e4 44%,#909aa1 100%);
+                      -webkit-background-clip: text;
+                      color: transparent;
+                    }
+                    .berta-orange {
+                      color: #ff9638;
+                      letter-spacing: .02em;
+                    }
+                    .berta-mobile-sub {
+                      margin-top: 7px;
+                      text-align: center;
+                      font-size: 8px;
+                      letter-spacing: .27em;
+                      color: #9fb0ba;
+                    }
+                - type: grid
+                  columns: 3
+                  square: false
+                  cards:
+                    - type: custom:button-card
+                      entity: weather.forecast_home
+                      name: Weather
+                      show_state: true
+                      show_icon: true
+                      icon: mdi:weather-partly-cloudy
+                      state_display: |
+                        [[[
+                          const t = entity?.attributes?.temperature;
+                          const unit = entity?.attributes?.temperature_unit || '°F';
+                          return Number.isFinite(Number(t)) ? `${Math.round(Number(t))}${unit}` : (entity?.state || '—');
+                        ]]]
+                      tap_action:
+                        action: more-info
+                      styles:
+                        card:
+                          - height: 68px
+                          - padding: 5px 3px
+                          - border-radius: 14px
+                          - background: rgba(8,19,27,.94)
+                          - border: 1px solid rgba(56,201,255,.86)
+                          - box-shadow: 0 0 14px rgba(56,201,255,.20)
+                        icon:
+                          - color: '#38c9ff'
+                          - width: 19px
+                        name:
+                          - color: '#9fb0ba'
+                          - font-size: 10px
+                        state:
+                          - color: '#f5f7f9'
+                          - font-size: 11px
+                          - font-weight: 800
+                    - type: custom:button-card
+                      entity: sensor.berta_weather_alert_summary
+                      name: Alerts
+                      show_state: true
+                      icon: mdi:weather-lightning
+                      tap_action:
+                        action: navigate
+                        navigation_path: /berta-control/weather-alerts
+                      styles:
+                        card:
+                          - height: 68px
+                          - padding: 5px 3px
+                          - border-radius: 14px
+                          - background: rgba(8,19,27,.94)
+                          - border: |
+                              [[[
+                                const s = (entity?.state || '').toUpperCase();
+                                const sev = (entity?.attributes?.severity || '').toUpperCase();
+                                if (s === 'CLEAR') return '1px solid rgba(75,220,120,.90)';
+                                if (s.includes('EMERGENCY') || sev === 'EXTREME') return '1px solid rgba(255,60,60,.98)';
+                                if (s.includes('WARNING') || sev === 'SEVERE') return '1px solid rgba(184,92,255,.98)';
+                                if (s.includes('WATCH')) return '1px solid rgba(255,218,70,.98)';
+                                return '1px solid rgba(255,153,46,.98)';
+                              ]]]
+                          - box-shadow: |
+                              [[[
+                                const s = (entity?.state || '').toUpperCase();
+                                const sev = (entity?.attributes?.severity || '').toUpperCase();
+                                if (s === 'CLEAR') return '0 0 14px rgba(75,220,120,.25)';
+                                if (s.includes('EMERGENCY') || sev === 'EXTREME') return '0 0 18px rgba(255,60,60,.46)';
+                                if (s.includes('WARNING') || sev === 'SEVERE') return '0 0 18px rgba(184,92,255,.44)';
+                                if (s.includes('WATCH')) return '0 0 16px rgba(255,218,70,.35)';
+                                return '0 0 16px rgba(255,153,46,.36)';
+                              ]]]
+                        icon:
+                          - color: |
+                              [[[
+                                const s = (entity?.state || '').toUpperCase();
+                                const sev = (entity?.attributes?.severity || '').toUpperCase();
+                                if (s === 'CLEAR') return '#4bdc78';
+                                if (s.includes('EMERGENCY') || sev === 'EXTREME') return '#ff3c3c';
+                                if (s.includes('WARNING') || sev === 'SEVERE') return '#b85cff';
+                                if (s.includes('WATCH')) return '#ffda46';
+                                return '#ff992e';
+                              ]]]
+                          - width: 19px
+                        name:
+                          - color: '#9fb0ba'
+                          - font-size: 10px
+                        state:
+                          - color: '#f5f7f9'
+                          - font-size: 9px
+                          - font-weight: 800
+                    - type: custom:button-card
+                      entity: sensor.berta_burn_ban
+                      name: Burn Ban
+                      show_state: true
+                      icon: mdi:fire-alert
+                      tap_action:
+                        action: navigate
+                        navigation_path: /berta-control/burn-ban
+                      styles:
+                        card:
+                          - height: 68px
+                          - padding: 5px 3px
+                          - border-radius: 14px
+                          - background: rgba(8,19,27,.94)
+                          - border: |
+                              [[[
+                                const s = (entity?.state || '').toUpperCase();
+                                if (s.includes('ACTIVE')) return '1px solid rgba(255,70,55,.98)';
+                                if (s.includes('NO BURN BAN')) return '1px solid rgba(75,220,120,.90)';
+                                return '1px solid rgba(255,205,70,.95)';
+                              ]]]
+                          - box-shadow: |
+                              [[[
+                                const s = (entity?.state || '').toUpperCase();
+                                if (s.includes('ACTIVE')) return '0 0 18px rgba(255,70,55,.46)';
+                                if (s.includes('NO BURN BAN')) return '0 0 14px rgba(75,220,120,.25)';
+                                return '0 0 14px rgba(255,205,70,.28)';
+                              ]]]
+                        icon:
+                          - color: |
+                              [[[
+                                const s = (entity?.state || '').toUpperCase();
+                                if (s.includes('ACTIVE')) return '#ff4637';
+                                if (s.includes('NO BURN BAN')) return '#4bdc78';
+                                return '#ffd24a';
+                              ]]]
+                          - width: 19px
+                        name:
+                          - color: '#9fb0ba'
+                          - font-size: 10px
+                        state:
+                          - color: '#f5f7f9'
+                          - font-size: 8px
+                          - font-weight: 800
+                - type: grid
+                  columns: 4
+                  square: false
+                  cards:
+                    - type: custom:button-card
+                      entity: sensor.berta_can_2_dev_fresh_tank_level
+                      name: Fresh
+                      show_icon: false
+                      show_state: true
+                      tap_action:
+                        action: more-info
+                      styles:
+                        card:
+                          - height: 62px
+                          - border-radius: 13px
+                          - background: rgba(8,19,27,.94)
+                          - border: 1px solid rgba(56,201,255,.55)
+                          - box-shadow: 0 0 10px rgba(56,201,255,.12)
+                        name:
+                          - color: '#9fb0ba'
+                          - font-size: 10px
+                          - font-weight: 700
+                        state:
+                          - color: '#38c9ff'
+                          - font-size: 20px
+                          - font-weight: 950
+                    - type: custom:button-card
+                      entity: sensor.berta_can_2_dev_grey_tank_2_level
+                      name: Grey 2
+                      show_icon: false
+                      show_state: true
+                      tap_action:
+                        action: more-info
+                      styles:
+                        card:
+                          - height: 62px
+                          - border-radius: 13px
+                          - background: rgba(8,19,27,.94)
+                          - border: 1px solid rgba(170,184,194,.40)
+                          - box-shadow: none
+                        name:
+                          - color: '#9fb0ba'
+                          - font-size: 10px
+                          - font-weight: 700
+                        state:
+                          - color: '#d2d9dd'
+                          - font-size: 20px
+                          - font-weight: 950
+                    - type: custom:button-card
+                      entity: sensor.berta_can_2_dev_grey_tank_3_level
+                      name: Grey 3
+                      show_icon: false
+                      show_state: true
+                      tap_action:
+                        action: more-info
+                      styles:
+                        card:
+                          - height: 62px
+                          - border-radius: 13px
+                          - background: rgba(8,19,27,.94)
+                          - border: 1px solid rgba(170,184,194,.40)
+                          - box-shadow: none
+                        name:
+                          - color: '#9fb0ba'
+                          - font-size: 10px
+                          - font-weight: 700
+                        state:
+                          - color: '#d2d9dd'
+                          - font-size: 20px
+                          - font-weight: 950
+                    - type: custom:button-card
+                      entity: sensor.berta_can_2_dev_black_tank_level
+                      name: Black
+                      show_icon: false
+                      show_state: true
+                      tap_action:
+                        action: more-info
+                      styles:
+                        card:
+                          - height: 62px
+                          - border-radius: 13px
+                          - background: rgba(8,19,27,.94)
+                          - border: 1px solid rgba(255,166,52,.52)
+                          - box-shadow: 0 0 10px rgba(255,166,52,.10)
+                        name:
+                          - color: '#9fb0ba'
+                          - font-size: 10px
+                          - font-weight: 700
+                        state:
+                          - color: '#ffad43'
+                          - font-size: 20px
+                          - font-weight: 950
+                - type: markdown
+                  content: |
+                    ## ⚡ CONTROLS
+                  card_mod:
+                    style: |
+                      ha-card {
+                        margin-top: 2px;
+                        padding: 8px 12px;
+                        border-radius: 14px;
+                        border: 1px solid rgba(68,129,157,.28);
+                        background: rgba(8,19,27,.94);
+                        color: #f5f7f9;
+                      }
+                      ha-markdown h2 {
+                        margin: 0;
+                        font-size: 17px;
+                      }
+                - type: markdown
+                  content: |
+                    ## 💧 WATER SAFETY
+                    Leak sensors should read **DRY**.
+                  card_mod:
+                    style: |
+                      ha-card {
+                        padding: 8px 12px 5px;
+                        margin-top: 4px;
+                        border-radius: 14px;
+                        border: 1px solid rgba(56,201,255,.42);
+                        background: rgba(8,19,27,.96);
+                        color: #f5f7f9;
+                      }
+                      ha-markdown h2 { margin: 0; font-size: 16px; }
+                      ha-markdown p { margin: 4px 0 0; color: #9fb0ba; font-size: 11px; }
+                - type: grid
+                  columns: 2
+                  square: false
+                  cards:
+                    - type: custom:button-card
+                      entity: binary_sensor.bathroom_leak_sensor_water_leak
+                      name: Bathroom
+                      icon: mdi:water-alert
+                      show_state: true
+                      state_display: |
+                        [[[ if (entity.state === 'on') return 'WET — LEAK'; if (entity.state === 'off') return 'DRY'; return (entity.state || 'UNKNOWN').toUpperCase(); ]]]
+                      tap_action: { action: more-info }
+                      styles:
+                        card:
+                          - height: 68px
+                          - border-radius: 14px
+                          - background: rgba(8,19,27,.96)
+                          - border: |
+                              [[[ return entity.state === 'on' ? '2px solid #ff4637' : entity.state === 'off' ? '1px solid rgba(75,220,120,.72)' : '1px solid rgba(255,205,70,.85)'; ]]]
+                        icon:
+                          - color: |
+                              [[[ return entity.state === 'on' ? '#ff4637' : entity.state === 'off' ? '#4bdc78' : '#ffd24a'; ]]]
+                          - width: 22px
+                        name: [{ color: '#f5f7f9', font-size: 10px }]
+                        state:
+                          - color: |
+                              [[[ return entity.state === 'on' ? '#ff7168' : entity.state === 'off' ? '#58d68d' : '#ffd24a'; ]]]
+                          - font-size: 10px
+                          - font-weight: 900
+                    - type: custom:button-card
+                      entity: binary_sensor.0x00158d008bbac50f_water_leak
+                      name: Leak Sensor C50F
+                      icon: mdi:water-alert
+                      show_state: true
+                      state_display: |
+                        [[[ if (entity.state === 'on') return 'WET — LEAK'; if (entity.state === 'off') return 'DRY'; return (entity.state || 'UNKNOWN').toUpperCase(); ]]]
+                      tap_action: { action: more-info }
+                      styles:
+                        card:
+                          - height: 68px
+                          - border-radius: 14px
+                          - background: rgba(8,19,27,.96)
+                          - border: |
+                              [[[ return entity.state === 'on' ? '2px solid #ff4637' : entity.state === 'off' ? '1px solid rgba(75,220,120,.72)' : '1px solid rgba(255,205,70,.85)'; ]]]
+                        icon:
+                          - color: |
+                              [[[ return entity.state === 'on' ? '#ff4637' : entity.state === 'off' ? '#4bdc78' : '#ffd24a'; ]]]
+                          - width: 22px
+                        name: [{ color: '#f5f7f9', font-size: 10px }]
+                        state:
+                          - color: |
+                              [[[ return entity.state === 'on' ? '#ff7168' : entity.state === 'off' ? '#58d68d' : '#ffd24a'; ]]]
+                          - font-size: 10px
+                          - font-weight: 900
+                    - type: custom:button-card
+                      entity: binary_sensor.0x00158d008c865795_water_leak
+                      name: Leak Sensor 5795
+                      icon: mdi:water-alert
+                      show_state: true
+                      state_display: |
+                        [[[ if (entity.state === 'on') return 'WET — LEAK'; if (entity.state === 'off') return 'DRY'; return (entity.state || 'UNKNOWN').toUpperCase(); ]]]
+                      tap_action: { action: more-info }
+                      styles:
+                        card:
+                          - height: 68px
+                          - border-radius: 14px
+                          - background: rgba(8,19,27,.96)
+                          - border: |
+                              [[[ return entity.state === 'on' ? '2px solid #ff4637' : entity.state === 'off' ? '1px solid rgba(75,220,120,.72)' : '1px solid rgba(255,205,70,.85)'; ]]]
+                        icon:
+                          - color: |
+                              [[[ return entity.state === 'on' ? '#ff4637' : entity.state === 'off' ? '#4bdc78' : '#ffd24a'; ]]]
+                          - width: 22px
+                        name: [{ color: '#f5f7f9', font-size: 10px }]
+                        state:
+                          - color: |
+                              [[[ return entity.state === 'on' ? '#ff7168' : entity.state === 'off' ? '#58d68d' : '#ffd24a'; ]]]
+                          - font-size: 10px
+                          - font-weight: 900
+                    - type: custom:button-card
+                      entity: switch.water_valve
+                      name: Water Valve
+                      icon: mdi:valve
+                      show_state: true
+                      state_display: |
+                        [[[ if (entity.state === 'on') return 'OPEN'; if (entity.state === 'off') return 'CLOSED'; return (entity.state || 'UNKNOWN').toUpperCase(); ]]]
+                      tap_action:
+                        action: toggle
+                        confirmation:
+                          text: Toggle the water shutoff valve?
+                      hold_action: { action: more-info }
+                      styles:
+                        card:
+                          - height: 68px
+                          - border-radius: 14px
+                          - background: rgba(8,19,27,.96)
+                          - border: |
+                              [[[ return entity.state === 'on' ? '1px solid rgba(255,153,46,.95)' : entity.state === 'off' ? '1px solid rgba(75,220,120,.72)' : '1px solid rgba(255,205,70,.85)'; ]]]
+                        icon:
+                          - color: |
+                              [[[ return entity.state === 'on' ? '#ff992e' : entity.state === 'off' ? '#4bdc78' : '#ffd24a'; ]]]
+                          - width: 22px
+                        name: [{ color: '#f5f7f9', font-size: 10px }]
+                        state: [{ color: '#f5f7f9', font-size: 10px, font-weight: 900 }]
+                - type: custom:button-card
+                  template: berta_control
+                  entity: light.berta_can_2_dev_kitchen_pendants
+                  name: Kitchen Pendants
+                  icon: mdi:ceiling-light
+                - type: custom:button-card
+                  template: berta_control
+                  entity: light.berta_can_2_dev_island_light
+                  name: Island Light
+                  icon: mdi:ceiling-light
+                - type: custom:button-card
+                  template: berta_control
+                  entity: light.berta_can_2_dev_awning_light_1
+                  name: Awning Light 1
+                  icon: mdi:awning-outline
+                - type: custom:button-card
+                  template: berta_control
+                  entity: light.berta_can_2_dev_awning_light_2
+                  name: Awning Light 2
+                  icon: mdi:awning-outline
+                - type: custom:button-card
+                  template: berta_control
+                  entity: light.berta_can_2_dev_under_body_lights
+                  name: Under Body Lights
+                  icon: mdi:car-light-high
+                - type: custom:button-card
+                  template: berta_control
+                  entity: light.berta_can_2_dev_scare_light
+                  name: Scare Light
+                  icon: mdi:lightbulb-alert-outline
+                - type: custom:button-card
+                  template: berta_control
+                  entity: switch.berta_can_2_dev_water_pump
+                  name: Water Pump
+                  icon: mdi:water-pump
+                - type: custom:button-card
+                  template: berta_control
+                  entity: switch.berta_can_2_dev_tank_heater
+                  name: Tank Heater
+                  icon: mdi:heating-coil
+                - type: custom:button-card
+                  name: 911 LOCATE
+                  icon: mdi:alarm-light
+                  show_state: false
+                  tap_action:
+                    action: none
+                  hold_action:
+                    action: none
+                  styles:
+                    card:
+                      - height: 68px
+                      - margin-top: 2px
+                      - border-radius: 16px
+                      - background: >-
+                          linear-gradient(180deg, rgba(151,21,31,.98),
+                          rgba(112,12,22,.98))
+                      - border: 1px solid rgba(255,72,72,.95)
+                      - box-shadow: 0 0 18px rgba(255,45,45,.34)
+                    icon:
+                      - color: '#ffffff'
+                      - width: 27px
+                    name:
+                      - color: '#ffffff'
+                      - font-size: 17px
+                      - font-weight: 950
+                      - letter-spacing: .10em
+  - title: Weather Alerts
+    path: weather-alerts
+    subview: true
+    icon: mdi:weather-lightning
+    cards:
+      - type: markdown
+        content: >
+          # ⚡ WEATHER ALERTS
+
+
+          {% set e =
+          'sensor.nws_alerts_tracker_berta_location_nws_alerts_alerts' %}
+
+          {% set count = states(e) | int(0) %}
+
+          {% set alerts = state_attr(e, 'Alerts') %}
+
+
+          {% if count == 0 or alerts is not iterable or alerts is string or
+          alerts | count == 0 %}
+
+          ## ✅ No Active NWS Alerts
+
+
+          No active National Weather Service alerts are currently reported for
+          Berta's location.
+
+          {% else %}
+
+          {% for alert in alerts %}
+
+          ## {{ alert['Event'] }}
+
+
+          **Headline:** {{ alert['Headline'] }}
+
+
+          **Severity:** {{ alert['Severity'] }}  
+
+          **Certainty:** {{ alert['Certainty'] }}  
+
+          **Status:** {{ alert['Status'] }}
+
+
+          **Effective:** {{ alert['Onset'] }}  
+
+          **Ends:** {{ alert['Ends'] if alert['Ends'] is defined and
+          alert['Ends'] else alert['Expires'] }}
+
+
+          **Areas Affected:**  
+
+          {{ alert['AreasAffected'] }}
+
+
+          ### What NWS Says
+
+          {{ alert['Description'] }}
+
+
+          {% if alert['Instruction'] is defined and alert['Instruction'] %}
+
+          ### Instructions
+
+          {{ alert['Instruction'] }}
+
+          {% endif %}
+
+
+          ---
+
+          {% endfor %}
+
+          {% endif %}
+        card_mod:
+          style: |
+            ha-card {
+              border-radius: 18px;
+              border: 1px solid rgba(255,153,46,.60);
+              background: rgba(8,19,27,.97);
+              color: #f5f7f9;
+              box-shadow: 0 0 20px rgba(255,153,46,.18);
+              padding: 8px 12px;
+            }
+            ha-markdown h1 {
+              color: #ff992e;
+              letter-spacing: .05em;
+            }
+            ha-markdown h2 {
+              color: #f5f7f9;
+            }
+            ha-markdown h3 {
+              color: #38c9ff;
+            }
+            ha-markdown p {
+              line-height: 1.45;
+            }
+      - type: custom:button-card
+        name: Back to Berta
+        icon: mdi:arrow-left
+        tap_action:
+          action: navigate
+          navigation_path: /berta-control/overview
+        styles:
+          card:
+            - height: 54px
+            - border-radius: 14px
+            - background: rgba(8,19,27,.94)
+            - border: 1px solid rgba(56,201,255,.55)
+          icon:
+            - color: '#38c9ff'
+          name:
+            - color: '#f5f7f9'
+            - font-weight: 800
+  - title: Burn Ban
+    path: burn-ban
+    subview: true
+    icon: mdi:fire-alert
+    cards:
+      - type: markdown
+        content: >
+          # 🔥 BURN BAN STATUS
+
+
+          {% set e = 'sensor.berta_burn_ban' %}
+
+          {% set status = states(e) %}
+
+          {% set county = state_attr(e, 'county') %}
+
+          {% set source = state_attr(e, 'source') %}
+
+          {% set source_status = state_attr(e, 'source_status') %}
+
+          {% set source_url = state_attr(e, 'source_url') %}
+
+
+          {% if 'ACTIVE' in status %}
+
+          ## 🚫 {{ status }}
+
+          {% elif 'NO BURN BAN' in status %}
+
+          ## ✅ {{ status }}
+
+          {% else %}
+
+          ## ⚠️ {{ status }}
+
+          {% endif %}
+
+
+          **Current County:** {{ county if county else 'Unknown' }}
+
+
+          **Source:** {{ source if source else 'Texas A&M Forest Service' }}
+
+
+          **Feed Status:** {{ source_status if source_status else 'Available' }}
+
+
+          This status follows Berta's live GPS location. When Berta moves to a
+          different Texas county, the county is re-resolved and the burn-ban
+          status is checked again.
+
+
+          {% if source_url %}
+
+          [Open the burn-ban source]({{ source_url }})
+
+          {% endif %}
+
+
+          ### Important
+
+          Burn bans and outdoor-fire restrictions can vary by jurisdiction and
+          may contain exceptions or additional local rules. Use this as a quick
+          status indicator and open the source above when you need the full
+          current restriction details.
+        card_mod:
+          style: |
+            ha-card {
+              border-radius: 18px;
+              border: 1px solid
+                {% if 'ACTIVE' in states('sensor.berta_burn_ban') %}
+                  rgba(255,70,55,.80)
+                {% else %}
+                  rgba(75,220,120,.65)
+                {% endif %};
+              background: rgba(8,19,27,.97);
+              color: #f5f7f9;
+              box-shadow:
+                {% if 'ACTIVE' in states('sensor.berta_burn_ban') %}
+                  0 0 22px rgba(255,70,55,.22)
+                {% else %}
+                  0 0 18px rgba(75,220,120,.16)
+                {% endif %};
+              padding: 8px 12px;
+            }
+            ha-markdown h1 {
+              color: #ff9638;
+              letter-spacing: .05em;
+            }
+            ha-markdown h3 {
+              color: #38c9ff;
+            }
+            ha-markdown p {
+              line-height: 1.45;
+            }
+      - type: custom:button-card
+        name: Back to Berta
+        icon: mdi:arrow-left
+        tap_action:
+          action: navigate
+          navigation_path: /berta-control/overview
+        styles:
+          card:
+            - height: 54px
+            - border-radius: 14px
+            - background: rgba(8,19,27,.94)
+            - border: 1px solid rgba(56,201,255,.55)
+          icon:
+            - color: '#38c9ff'
+          name:
+            - color: '#f5f7f9'
+            - font-weight: 800
+  - title: ICE
+    path: ice
+    icon: mdi:account-alert-outline
+    panel: true
+    cards:
+      - type: custom:button-card
+        show_name: false
+        show_icon: false
+        styles:
+          card:
+            - min-height: calc(100vh - 56px)
+            - padding: 18px
+            - border-radius: 0
+            - background: >-
+                radial-gradient(circle at 50% 20%, rgba(30,40,48,.26),
+                rgba(3,10,15,.98) 60%)
+            - box-shadow: none
+          grid:
+            - grid-template-areas: '"content"'
+            - grid-template-columns: minmax(520px, 900px)
+            - justify-content: center
+        custom_fields:
+          content:
+            do_not_eval: true
+            card:
+              type: vertical-stack
+              cards:
+                - type: custom:button-card
+                  name: IN CASE OF EMERGENCY
+                  icon: mdi:account-alert-outline
+                  show_state: false
+                  tap_action:
+                    action: none
+                  styles:
+                    card:
+                      - height: 92px
+                      - border-radius: 18px
+                      - background: >-
+                          linear-gradient(180deg, rgba(96,12,18,.96),
+                          rgba(54,7,10,.96))
+                      - border: 1px solid rgba(255,82,82,.65)
+                      - box-shadow: 0 0 20px rgba(255,55,55,.18)
+                    icon:
+                      - color: '#ff6969'
+                      - width: 34px
+                    name:
+                      - color: '#ffffff'
+                      - font-size: 26px
+                      - font-weight: 950
+                      - letter-spacing: .08em
+                - type: markdown
+                  content: >
+                    ## Emergency Contacts
+
+
+                    **Primary ICE Contact**  
+
+                    Name: _Enter name_  
+
+                    Relationship: _Enter relationship_  
+
+                    Phone: _Enter phone number_
+
+
+                    ---
+
+
+                    **Secondary ICE Contact**  
+
+                    Name: _Enter name_  
+
+                    Relationship: _Enter relationship_  
+
+                    Phone: _Enter phone number_
+
+
+                    ---
+
+
+                    **Additional Contact / Medical Provider**  
+
+                    Name: _Enter name or organization_  
+
+                    Phone: _Enter phone number_  
+
+                    Notes: _Enter anything responders should know_
+
+
+                    ---
+
+
+                    _This page is intentionally manual so the emergency
+                    information can be kept simple and readable._
+                  card_mod:
+                    style: |
+                      ha-card {
+                        padding: 20px 24px;
+                        border-radius: 18px;
+                        background: rgba(10,22,30,.94);
+                        border: 1px solid rgba(68,129,157,.30);
+                        color: #f5f7f9;
+                        box-shadow: none;
+                      }
+                      ha-markdown h2 {
+                        color: #ff8a8a;
+                        margin-top: 0;
+                      }
+                - type: custom:button-card
+                  name: BACK TO BERTA
+                  icon: mdi:arrow-left
+                  tap_action:
+                    action: navigate
+                    navigation_path: /berta-control/overview
+                  styles:
+                    card:
+                      - height: 64px
+                      - border-radius: 14px
+                      - background: rgba(10,22,30,.92)
+                      - border: 1px solid rgba(68,129,157,.34)
+                    icon:
+                      - color: '#25c2ff'
+                    name:
+                      - color: '#f5f7f9'
+                      - font-weight: 800
